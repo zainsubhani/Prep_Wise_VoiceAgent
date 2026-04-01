@@ -9,10 +9,8 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
+  
 } from "@/components/ui/card"
 
 import {
@@ -32,7 +30,7 @@ import {
 import Image from 'next/image';
 
 
-const AuthForm = () => {
+const AuthForm = ({type}:{type: FormData}) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -65,7 +63,8 @@ const AuthForm = () => {
         <CardContent>
           <form id="form-rhf-demo"  onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              
+              <p>user name</p>
+
              
             </FieldGroup>
           </form>
