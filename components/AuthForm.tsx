@@ -28,10 +28,14 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group"
 import Image from 'next/image';
+import Link from 'next/link';
 
+type AuthFormProps = {
+  type: 'sign-in' | 'sign-up';
+};
 
-const AuthForm = ({type}:{type: FormData}) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+const AuthForm = ({ type }: AuthFormProps) => {
+    const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
@@ -43,6 +47,7 @@ const AuthForm = ({type}:{type: FormData}) => {
     // Do something with the form values.
     console.log(data)
   }
+  const isSignIn = type === 'sign-in';
 
   return (
     <div className='card-border  lg:min-w-139 '>
@@ -63,11 +68,21 @@ const AuthForm = ({type}:{type: FormData}) => {
         <CardContent>
           <form id="form-rhf-demo"  onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              <p>user name</p>
+           {!isSignIn &&   <p> Name</p> }
+           <p>Email</p>
+           <p>Password</p>
+           <button className='btn' type='submit' >{isSignIn ? 'signIn' : 'create an account'}</button>
 
              
             </FieldGroup>
           </form>
+          <p className='text-center' >
+            {isSignIn ? 'No Account Yet' : 'Have an Account Already '}
+            <Link href={!isSignIn ? '/sign-in' : '/sign-up' } className='font-bold text-user-primary' >
+            {!isSignIn ? 'Sign in' : 'Sign up'}
+            </Link>
+
+          </p>
         </CardContent>
         <CardFooter>
           <Field orientation="horizontal">
