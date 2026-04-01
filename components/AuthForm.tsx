@@ -49,12 +49,21 @@ const AuthForm = ({ type }: AuthFormProps) => {
 
   function onSubmit(data: z.infer<typeof authFormSchema>) {
     try {
+      if(type==='sign-up')
+      {
+        console.log('sign up',data);
+      }
+      else {
+        console.log('sign - in ',data)
+      }
+
+
 
 
     }
     catch (error){
       console.log(error);
-      toast.error('There is an eror in onsubmit')
+      toast .error('There is an eror in onsubmit')
 
     }
    
