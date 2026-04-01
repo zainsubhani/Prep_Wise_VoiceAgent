@@ -10,3 +10,15 @@ export const formSchema = z.object({
     .min(20, "Description must be at least 20 characters.")
     .max(100, "Description must be at most 100 characters."),
 })
+export const authFormSchema =(type : FormType) =>{
+  return z.object(
+    {
+      name : type === 'sign-up' ?  z.string().min(3) : z.string().optional() ,
+      email : z.string().email(),
+      password : z.string().min(3),
+       
+
+
+    }
+  )
+}

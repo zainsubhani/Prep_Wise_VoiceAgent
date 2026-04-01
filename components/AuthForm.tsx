@@ -1,6 +1,6 @@
 "use client";
 import React from 'react'
-import { formSchema } from '../schema/form.schema'
+import { authFormSchema } from '../schema/form.schema'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 
@@ -29,23 +29,35 @@ import {
 } from "@/components/ui/input-group"
 import Image from 'next/image';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 type AuthFormProps = {
   type: 'sign-in' | 'sign-up';
 };
 
+
 const AuthForm = ({ type }: AuthFormProps) => {
+  const formSchema = authFormSchema(type);
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      name: "",
+      email: "",
+      password:"",
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    console.log(data)
+  function onSubmit(data: z.infer<typeof authFormSchema>) {
+    try {
+
+
+    }
+    catch (error){
+      console.log(error);
+      toast.error('There is an eror in onsubmit')
+
+    }
+   
   }
   const isSignIn = type === 'sign-in';
 
