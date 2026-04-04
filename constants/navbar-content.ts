@@ -4,7 +4,7 @@ export const navbarContent = {
     secondary: "AI",
   },
   links: [
-    { label: "PLATFORM", href: "#" },
+    { label: "PLATFORM", href: "/dashboard" },
     { label: "CANDIDATES", href: "#" },
     { label: "ENTERPRISE", href: "#" },
     { label: "PRICING", href: "#" },
