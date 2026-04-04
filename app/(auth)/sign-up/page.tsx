@@ -1,11 +1,14 @@
-import AuthForm from '@/components/AuthForm'
+import AuthForm from "@/components/AuthForm";
+import ParticlesBackground from "@/components/ui/ParticlesBackground";
 
-const SignUpPage = () => {
+export default function SignUpPage() {
   return (
-    <div>
-      <AuthForm type="sign-up" />
-    </div>
-  )
-}
+    <main className="relative min-h-screen overflow-hidden bg-dark-100">
+      <ParticlesBackground />
 
-export default SignUpPage
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+        <AuthForm type="sign-up" />
+      </div>
+    </main>
+  );
+}

@@ -11,6 +11,6 @@ export const navbarContent = {
   ],
   cta: {
     label: "Login",
-    href: "#",
+    href: "/sign-in",
   },
 };

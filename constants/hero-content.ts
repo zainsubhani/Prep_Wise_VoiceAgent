@@ -10,5 +10,6 @@ export const heroContent = {
   buttons: {
     primary: "Start Free Trial",
     secondary: "Watch Demo",
+    href:"/sign-up"
   },
 };

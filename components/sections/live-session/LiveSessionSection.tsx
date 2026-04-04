@@ -6,7 +6,7 @@ export default function LiveSessionSection() {
       
       {/* GRID BACKGROUND */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:80px_80px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-size-[80px_80px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl">
@@ -40,7 +40,7 @@ export default function LiveSessionSection() {
         </div>
 
         {/* ===== MAIN CONTENT ===== */}
-        <div className="grid lg:grid-cols-2 gap-10 items-center bg-white/[0.03] border border-white/10 rounded-2xl p-6 md:p-10 backdrop-blur">
+        <div className="grid lg:grid-cols-2 gap-10 items-center bg-white/3 border border-white/10 rounded-2xl p-6 md:p-10 backdrop-blur">
 
           {/* LEFT: TERMINAL UI */}
           <div className="bg-black rounded-xl p-6 font-mono text-sm text-green-400 shadow-inner">

@@ -1,20 +1,19 @@
-import CorePlatformSection from '@/components/sections/corePlatformSection'
-import FinalCtaSection from '@/components/sections/FinalCtaSection'
-import HeroSection from '@/components/sections/HeroSection'
-import LiveSessionSection from '@/components/sections/liveSession'
-import Navbar from '@/components/sections/NavBar'
-import React from 'react'
+import CorePlatformSection from "@/components/sections/core-platform/CorePlatformSection";
+import FinalCtaSection from "@/components/sections/final-cta/FinalCtaSection";
+import Footer from "@/components/sections/Footer/Footer";
+import HeroSection from "@/components/sections/hero-section/HeroSection";
+import LiveSessionSection from "@/components/sections/live-session/LiveSessionSection";
+import Navbar from "@/components/sections/navbar/NavBar";
 
-const page = () => {
+export default function Page() {
   return (
-    <div>
-      <Navbar/>
-         <HeroSection />
+    <main className="flex-1 flex flex-col bg-[#050816] text-white">
+      <Navbar />
+      <HeroSection />
       <CorePlatformSection />
-      <LiveSessionSection/>
+      <LiveSessionSection />
       <FinalCtaSection />
-    </div>
-  )
+      <Footer />
+    </main>
+  );
 }
-
-export default page

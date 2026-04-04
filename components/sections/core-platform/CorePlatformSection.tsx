@@ -18,7 +18,7 @@ export default function CorePlatformSection() {
           {corePlatformContent.features.map((feature) => (
             <div
               key={feature.id}
-              className="group rounded-2xl border border-white/8 bg-white/3 p-8 backdrop-blur-[2px] transition duration-300 hover:border-cyan-400/30 hover:bg-white/[0.05]"
+              className="group rounded-2xl border border-white/8 bg-white/3 p-8 backdrop-blur-[2px] transition duration-300 hover:border-cyan-400/30 hover:bg-white/5"
             >
               <div className="mb-8 text-4xl">{feature.icon}</div>
 

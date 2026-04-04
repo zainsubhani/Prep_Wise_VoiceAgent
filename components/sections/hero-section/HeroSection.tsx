@@ -1,6 +1,8 @@
 // components/HeroSection.tsx
-import ParticlesBackground from "../ui/ParticlesBackground";
-import { heroContent } from "@/constants/Hero";
+import ParticlesBackground from "../../ui/ParticlesBackground";
+import { heroContent } from "@/constants/hero-content";
+import Link from "next/link";
+
 
 export default function HeroSection() {
   return (
@@ -25,15 +27,22 @@ export default function HeroSection() {
           {heroContent.description}
         </p>
 
-        <div className="mt-10 flex justify-center gap-4 flex-wrap">
-          <button className="bg-cyan-400 text-black font-semibold px-6 py-3 rounded-md hover:bg-cyan-300 transition">
-            {heroContent.buttons.primary}
-          </button>
 
-          <button className="border border-gray-400 text-gray-400 font-semibold px-6 py-3 rounded-md hover:bg-gray-800 hover:text-white transition">
-            {heroContent.buttons.secondary}
-          </button>
-        </div>
+<div className="mt-10 flex justify-center gap-4 flex-wrap">
+  <Link
+    href="/sign-up"
+    className="bg-cyan-400 text-black font-semibold px-6 py-3 rounded-md hover:bg-cyan-300 transition"
+  >
+    {heroContent.buttons.primary}
+  </Link>
+
+  <Link
+    href="/sign-in"
+    className="border border-gray-400 text-gray-400 font-semibold px-6 py-3 rounded-md hover:bg-gray-800 hover:text-white transition"
+  >
+    {heroContent.buttons.secondary}
+  </Link>
+</div>
       </div>
     </section>
   );
