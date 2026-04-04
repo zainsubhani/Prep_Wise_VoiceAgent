@@ -10,7 +10,7 @@ export const navbarContent = {
     { label: "PRICING", href: "#" },
   ],
   cta: {
-    label: "REQUEST DEMO",
+    label: "Login",
     href: "#",
   },
 };

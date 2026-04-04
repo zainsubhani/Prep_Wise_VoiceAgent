@@ -1,9 +1,9 @@
 import React from "react";
-import { Field, FieldError, FieldLabel } from "./ui/field";
-import { Input } from "./ui/input";
+import { Field, FieldError, FieldLabel } from "../ui/field";
+import { Input } from "../ui/input";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema } from "../schema/form.schema";
+import { formSchema } from "../../schema/form.schema";
 import * as z from "zod";
 
 type FormFieldProps = {

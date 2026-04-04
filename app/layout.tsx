@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import { Mona_Sans, Geist } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
-const mona_Sans = Mona_Sans({
+const monaSans = Mona_Sans({
   variable: "--font-mona-sans",
   subsets: ["latin"],
 });
-
-
 
 export const metadata: Metadata = {
   title: "Voice Agent App",
@@ -24,13 +24,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn("dark", "h-full", "antialiased", mona_Sans.variable, "font-sans pattern", geist.variable)}
-    >
-      <body className="min-h-full flex flex-col">{children} 
-        <Toaster/>
-
+    <html lang="en" className={`${geist.variable} ${monaSans.variable}`}>
+      <body className="min-h-screen bg-[#050816] text-white flex flex-col">
+        {children}
+        <Toaster />
       </body>
     </html>
   );
