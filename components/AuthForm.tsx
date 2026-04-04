@@ -33,6 +33,11 @@ type Props = {
   type: AuthType;
 };
 
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return "Something went wrong";
+}
+
 export default function AuthForm({ type }: Props) {
   const router = useRouter();
   const isSignIn = type === "sign-in";
@@ -63,52 +68,85 @@ export default function AuthForm({ type }: Props) {
 
       router.push("/");
     } catch (error: unknown) {
-  console.error(error);
+      console.error(error);
+      toast.error(getErrorMessage(error));
+    }
+  };
 
-  const message =
-    error instanceof Error
-      ? error.message
-      : "Something went wrong";
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      toast.success("Signed in with Google");
+      router.push("/");
+    } catch (error: unknown) {
+      console.error(error);
+      toast.error(getErrorMessage(error));
+    }
+  };
 
-  toast.error(message);
-}
+  const handleGithubSignIn = async () => {
+    try {
+      await signInWithGithub();
+      toast.success("Signed in with GitHub");
+      router.push("/");
+    } catch (error: unknown) {
+      console.error(error);
+      toast.error(getErrorMessage(error));
+    }
+  };
+
+  const handleLinkedInSignIn = async () => {
+    try {
+      await signInWithLinkedIn();
+      toast.success("Signed in with LinkedIn");
+      router.push("/");
+    } catch (error: unknown) {
+      console.error(error);
+      toast.error(getErrorMessage(error));
+    }
   };
 
   return (
-    <section className="relative w-full max-w-md">
-      <div className="absolute inset-0 rounded-3xl bg-primary-200/10 blur-3xl" />
+    <section className="relative w-full max-w-xl">
+      <div className="absolute inset-0 rounded-4xl bg-cyan-400/10 blur-3xl" />
 
-      <div className="relative overflow-hidden rounded-3xl border border-primary-200/20 bg-dark-100/80 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur-xl">
-        <div className="border-b border-white/10 px-6 py-8 sm:px-8">
-          <div className="mb-6 flex items-center justify-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary-200/20 bg-dark-200/80">
-              <Image src="/logo.svg" alt="Logo" width={24} height={24} />
+      <div className="relative overflow-hidden rounded-4xl border border-white/10 bg-[#0a1022]/85 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur-xl">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,224,0.08),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(0,119,255,0.06),transparent_25%)]" />
+
+        <div className="relative border-b border-white/10 px-6 py-8 sm:px-10">
+          <div className="mb-8 flex items-center justify-center gap-3">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-400/20 bg-white/5 shadow-[0_0_30px_rgba(0,255,224,0.08)]">
+              <Image src="/logo.svg" alt="Logo" width={28} height={28} />
             </div>
 
             <div>
-              <p className="text-sm uppercase tracking-[0.22em] text-primary-200/70">
-                PrepWise
+              <p className="text-xs uppercase tracking-[0.28em] text-cyan-400">
+              AXIS AI
               </p>
-              <h1 className="text-lg font-semibold text-primary-100">
+              <h1 className="text-lg font-semibold text-white">
                 Interview Prep Platform
               </h1>
             </div>
           </div>
 
           <div className="text-center">
-            <h2 className="text-3xl font-semibold text-white">
-              {isSignIn ? "Welcome back" : "Create your account"}
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.32em] text-cyan-400">
+              Secure Access
+            </p>
+
+            <h2 className="text-4xl font-black leading-[0.95] tracking-tight text-white sm:text-5xl">
+              {isSignIn ? "Welcome Back" : "Create Account"}
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-light-400">
+            <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-white/55 sm:text-base">
               {isSignIn
-                ? "Sign in to continue your interview preparation journey."
-                : "Create an account to start practicing smarter interviews."}
+                ? "Sign in to continue your AI-powered interview preparation and track your progress."
+                : "Create your account to start practicing with structured, high-signal interview workflows."}
             </p>
           </div>
         </div>
 
-        <div className="px-6 py-8 sm:px-8">
+        <div className="relative px-6 py-8 sm:px-10">
           <form
             id="auth-form"
             onSubmit={form.handleSubmit(onSubmit)}
@@ -117,7 +155,7 @@ export default function AuthForm({ type }: Props) {
             <FieldGroup className="space-y-5">
               {authFields.map((field) => (
                 <Field key={field.name} className="space-y-2">
-                  <FieldLabel className="text-sm font-medium text-light-100">
+                  <FieldLabel className="text-sm font-medium text-white/85">
                     {field.label}
                   </FieldLabel>
 
@@ -125,11 +163,11 @@ export default function AuthForm({ type }: Props) {
                     type={field.type}
                     placeholder={field.placeholder}
                     {...form.register(field.name)}
-                    className="h-12 rounded-2xl border border-white/10 bg-dark-200/80 px-4 text-white placeholder:text-light-400 focus:border-primary-200"
+                    className="h-13 rounded-2xl border border-white/10 bg-white/4 px-4 text-white placeholder:text-white/30 focus:border-cyan-400/60 focus:bg-white/6 focus-visible:ring-0"
                   />
 
                   {form.formState.errors[field.name] && (
-                    <FieldError className="text-sm text-destructive-100">
+                    <FieldError className="text-sm text-red-400">
                       {form.formState.errors[field.name]?.message as string}
                     </FieldError>
                   )}
@@ -140,7 +178,7 @@ export default function AuthForm({ type }: Props) {
             <div className="space-y-3 pt-2">
               <Button
                 type="submit"
-                className="h-12 w-full rounded-2xl bg-primary-200 font-semibold text-dark-100 hover:bg-primary-200/85"
+                className="h-13 w-full rounded-2xl bg-cyan-400 text-base font-bold text-black transition hover:bg-cyan-300"
               >
                 {isSignIn ? "Sign In" : "Create Account"}
               </Button>
@@ -148,7 +186,7 @@ export default function AuthForm({ type }: Props) {
               <Button
                 type="button"
                 variant="outline"
-                className="h-12 w-full rounded-2xl border border-white/10 bg-transparent text-light-100 hover:bg-dark-200 hover:text-white"
+                className="h-13 w-full rounded-2xl border border-white/10 bg-transparent text-white/80 transition hover:bg-white/5 hover:text-white"
                 onClick={() => form.reset()}
               >
                 Reset
@@ -156,9 +194,9 @@ export default function AuthForm({ type }: Props) {
             </div>
           </form>
 
-          <div className="my-6 flex items-center gap-4">
+          <div className="my-7 flex items-center gap-4">
             <div className="h-px flex-1 bg-white/10" />
-            <span className="text-xs uppercase tracking-[0.2em] text-light-400">
+            <span className="text-[11px] uppercase tracking-[0.24em] text-white/35">
               or continue with
             </span>
             <div className="h-px flex-1 bg-white/10" />
@@ -168,23 +206,8 @@ export default function AuthForm({ type }: Props) {
             <Button
               type="button"
               variant="outline"
-              className="h-12 rounded-2xl border border-white/10 bg-dark-200/60 text-white hover:bg-dark-200"
-              onClick={async () => {
-                try {
-                  await signInWithGoogle();
-                  toast.success("Signed in with Google");
-                  router.push("/");
-                } catch (error: unknown) {
-  console.error(error);
-
-  const message =
-    error instanceof Error
-      ? error.message
-      : "Something went wrong";
-
-  toast.error(message);
-}
-              }}
+              className="h-12 rounded-2xl border border-white/10 bg-white/3 text-white transition hover:border-cyan-400/40 hover:bg-white/6"
+              onClick={handleGoogleSignIn}
             >
               Google
             </Button>
@@ -192,23 +215,8 @@ export default function AuthForm({ type }: Props) {
             <Button
               type="button"
               variant="outline"
-              className="h-12 rounded-2xl border border-white/10 bg-dark-200/60 text-white hover:bg-dark-200"
-              onClick={async () => {
-                try {
-                  await signInWithGithub();
-                  toast.success("Signed in with GitHub");
-                  router.push("/");
-                } catch (error: unknown) {
-  console.error(error);
-
-  const message =
-    error instanceof Error
-      ? error.message
-      : "Something went wrong";
-
-  toast.error(message);
-}
-              }}
+              className="h-12 rounded-2xl border border-white/10 bg-white/3 text-white transition hover:border-cyan-400/40 hover:bg-white/6"
+              onClick={handleGithubSignIn}
             >
               GitHub
             </Button>
@@ -216,35 +224,20 @@ export default function AuthForm({ type }: Props) {
             <Button
               type="button"
               variant="outline"
-              className="h-12 rounded-2xl border border-white/10 bg-dark-200/60 text-white hover:bg-dark-200"
-              onClick={async () => {
-                try {
-                  await signInWithLinkedIn();
-                  toast.success("Signed in with LinkedIn");
-                  router.push("/");
-                } catch (error: unknown) {
-  console.error(error);
-
-  const message =
-    error instanceof Error
-      ? error.message
-      : "Something went wrong";
-
-  toast.error(message);
-}
-              }}
+              className="h-12 rounded-2xl border border-white/10 bg-white/3 text-white transition hover:border-cyan-400/40 hover:bg-white/6"
+              onClick={handleLinkedInSignIn}
             >
               LinkedIn
             </Button>
           </div>
 
-          <div className="mt-6 text-center text-sm text-light-400">
+          <div className="mt-7 text-center text-sm text-white/45">
             {isSignIn
               ? "Don’t have an account?"
               : "Already have an account?"}{" "}
             <Link
               href={isSignIn ? "/sign-up" : "/sign-in"}
-              className="font-semibold text-primary-200 transition hover:text-primary-100"
+              className="font-semibold text-cyan-400 transition hover:text-cyan-300"
             >
               {isSignIn ? "Sign up" : "Sign in"}
             </Link>
