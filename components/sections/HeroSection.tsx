@@ -1,5 +1,5 @@
 // components/HeroSection.tsx
-import ParticlesBackground from "./ui/ParticlesBackground";
+import ParticlesBackground from "../ui/ParticlesBackground";
 import { heroContent } from "@/constants/Hero";
 
 export default function HeroSection() {
