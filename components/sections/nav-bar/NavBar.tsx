@@ -5,9 +5,10 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "firebase/auth";
 
-import { navbarContent } from "@/constants/navbar-content";
+import { publicNavbarContent , privateNavbarContent } from "@/constants/navbar-content";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/components/auth/AuthProvider";
+
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -26,6 +27,8 @@ export default function Navbar() {
   };
 
   const isActive = (href: string) => pathname === href;
+  const navItems = user ? privateNavbarContent.links : publicNavbarContent.links;
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#040816]/95 backdrop-blur-md">
@@ -38,12 +41,12 @@ export default function Navbar() {
             href="/"
             className="flex items-center text-3xl font-black tracking-tight"
           >
-            <span className="text-cyan-400">{navbarContent.logo.primary}</span>
-            <span className="text-white">{navbarContent.logo.secondary}</span>
+            <span className="text-cyan-400">{publicNavbarContent.logo.primary}</span>
+            <span className="text-white">{publicNavbarContent.logo.secondary}</span>
           </Link>
 
           <div className="hidden items-center gap-10 md:flex">
-            {navbarContent.links.map((link) => (
+            {navItems.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
@@ -122,7 +125,7 @@ export default function Navbar() {
         {open && (
           <div className="relative border-t border-white/10 bg-[#050816] px-4 py-6 md:hidden">
             <div className="flex flex-col gap-5">
-              {navbarContent.links.map((link) => (
+              {navItems.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}

@@ -1,16 +1,25 @@
-export const navbarContent = {
+export const publicNavbarContent = {
   logo: {
-    primary: "AXIS",
-    secondary: "AI",
+    primary: "Prep",
+    secondary: "Wise",
   },
   links: [
-    { label: "PLATFORM", href: "/dashboard" },
-    { label: "CANDIDATES", href: "#" },
-    { label: "ENTERPRISE", href: "#" },
-    { label: "PRICING", href: "#" },
+    { label: "Features", href: "/#features" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "Enterprise", href: "/#enterprise" },
+    { label: "Candidates", href: "/#candidates" },
   ],
-  cta: {
-    label: "Login",
-    href: "/sign-in",
+};
+
+export const privateNavbarContent = {
+  logo: {
+    primary: "Prep",
+    secondary: "Wise",
   },
+  links: [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Interviews", href: "/interviews" },
+    { label: "Feedback", href: "/feedback" },
+    { label: "Progress", href: "/progress" },
+  ],
 };
