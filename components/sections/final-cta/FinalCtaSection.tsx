@@ -4,7 +4,7 @@ import { finalCtaContent } from "@/constants/final-cta";
 
 export default function FinalCtaSection() {
   return (
-    <div className="mx-auto w-full max-w-3xl rounded-2xl border border-white/10 bg-white/4 px-6 py-12 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] backdrop-blur-md sm:px-10 sm:py-16 lg:px-16">
+    <div className="mx-auto w-full max-w-7xl   rounded-2xl border border-white/10 bg-white/4 px-6 py-12 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] backdrop-blur-md sm:px-10 sm:py-16 lg:px-16">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-4xl font-black leading-[0.95] tracking-tight text-white sm:text-5xl md:text-6xl">
           {finalCtaContent.title}

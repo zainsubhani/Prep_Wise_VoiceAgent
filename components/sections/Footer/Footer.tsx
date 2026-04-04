@@ -2,7 +2,7 @@ import { finalCtaContent } from "@/constants/final-cta";
 
 export default function Footer() {
   return (
-    <footer className="mt-16 flex flex-col items-center justify-between gap-6 py-5 text-sm text-white/30 sm:flex-row">
+    <footer className="mt-16 flex flex-col items-center justify-around gap-6 py-5 text-sm text-white/30 sm:flex-row">
       <p>{finalCtaContent.footer.copyright}</p>
 
       <div className="flex items-center gap-4">
