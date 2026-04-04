@@ -57,21 +57,26 @@ export default function AuthForm({ type }: Props) {
   const authFields = getAuthFields(type);
 
   const onSubmit = async (data: FormValues) => {
-    try {
-      if (isSignIn) {
-        await signInWithEmail(data.email, data.password);
-        toast.success("Signed in successfully");
-      } else {
-        await signUpWithEmail(data.name ?? "", data.email, data.password);
-        toast.success("Account created successfully");
-      }
-
-      router.push("/");
-    } catch (error: unknown) {
-      console.error(error);
-      toast.error(getErrorMessage(error));
+  try {
+    if (isSignIn) {
+      await signInWithEmail(data.email, data.password);
+      toast.success("Signed in successfully");
+    } else {
+      await signUpWithEmail(data.name ?? "", data.email, data.password);
+      toast.success("Account created successfully");
     }
-  };
+
+    router.push("/");
+  } catch (error: unknown) {
+    console.error(error);
+
+    const message =
+      error instanceof Error ? error.message : "Something went wrong";
+
+    toast.error(message);
+  }
+};
+
 
   const handleGoogleSignIn = async () => {
     try {
