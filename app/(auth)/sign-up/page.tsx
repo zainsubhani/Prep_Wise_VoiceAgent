@@ -1,7 +1,7 @@
 import AuthForm from "@/components/AuthForm";
 import ParticlesBackground from "@/components/ui/ParticlesBackground";
 
-export default function SignUpPage() {
+export default function Page() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-dark-100">
       <ParticlesBackground />

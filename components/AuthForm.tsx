@@ -4,6 +4,10 @@ import { authFormSchema } from "@/schema/form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { getAuthFields } from "@/constants/auth-field";
 import { AuthType } from "@/types/auth.types";
@@ -17,15 +21,20 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 
-import Image from "next/image";
-import Link from "next/link";
-import { toast } from "sonner";
+import {
+  signInWithEmail,
+  signInWithGithub,
+  signInWithGoogle,
+  signInWithLinkedIn,
+  signUpWithEmail,
+} from "@/lib/auth";
 
 type Props = {
   type: AuthType;
 };
 
 export default function AuthForm({ type }: Props) {
+  const router = useRouter();
   const isSignIn = type === "sign-in";
   const formSchema = authFormSchema(type);
 
@@ -45,16 +54,24 @@ export default function AuthForm({ type }: Props) {
   const onSubmit = async (data: FormValues) => {
     try {
       if (isSignIn) {
-        console.log("Sign In:", data);
+        await signInWithEmail(data.email, data.password);
         toast.success("Signed in successfully");
       } else {
-        console.log("Sign Up:", data);
+        await signUpWithEmail(data.name ?? "", data.email, data.password);
         toast.success("Account created successfully");
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong");
-    }
+
+      router.push("/");
+    } catch (error: unknown) {
+  console.error(error);
+
+  const message =
+    error instanceof Error
+      ? error.message
+      : "Something went wrong";
+
+  toast.error(message);
+}
   };
 
   return (
@@ -108,7 +125,7 @@ export default function AuthForm({ type }: Props) {
                     type={field.type}
                     placeholder={field.placeholder}
                     {...form.register(field.name)}
-                    className="h-12 rounded-2xl border border-white/10 bg-dark-200/80 px-4 text-white placeholder:text-light-400 focus:border-primary-200 focus:ring-0"
+                    className="h-12 rounded-2xl border border-white/10 bg-dark-200/80 px-4 text-white placeholder:text-light-400 focus:border-primary-200"
                   />
 
                   {form.formState.errors[field.name] && (
@@ -138,6 +155,88 @@ export default function AuthForm({ type }: Props) {
               </Button>
             </div>
           </form>
+
+          <div className="my-6 flex items-center gap-4">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="text-xs uppercase tracking-[0.2em] text-light-400">
+              or continue with
+            </span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-12 rounded-2xl border border-white/10 bg-dark-200/60 text-white hover:bg-dark-200"
+              onClick={async () => {
+                try {
+                  await signInWithGoogle();
+                  toast.success("Signed in with Google");
+                  router.push("/");
+                } catch (error: unknown) {
+  console.error(error);
+
+  const message =
+    error instanceof Error
+      ? error.message
+      : "Something went wrong";
+
+  toast.error(message);
+}
+              }}
+            >
+              Google
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="h-12 rounded-2xl border border-white/10 bg-dark-200/60 text-white hover:bg-dark-200"
+              onClick={async () => {
+                try {
+                  await signInWithGithub();
+                  toast.success("Signed in with GitHub");
+                  router.push("/");
+                } catch (error: unknown) {
+  console.error(error);
+
+  const message =
+    error instanceof Error
+      ? error.message
+      : "Something went wrong";
+
+  toast.error(message);
+}
+              }}
+            >
+              GitHub
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="h-12 rounded-2xl border border-white/10 bg-dark-200/60 text-white hover:bg-dark-200"
+              onClick={async () => {
+                try {
+                  await signInWithLinkedIn();
+                  toast.success("Signed in with LinkedIn");
+                  router.push("/");
+                } catch (error: unknown) {
+  console.error(error);
+
+  const message =
+    error instanceof Error
+      ? error.message
+      : "Something went wrong";
+
+  toast.error(message);
+}
+              }}
+            >
+              LinkedIn
+            </Button>
+          </div>
 
           <div className="mt-6 text-center text-sm text-light-400">
             {isSignIn
