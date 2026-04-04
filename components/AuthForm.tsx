@@ -1,128 +1,133 @@
 "use client";
-import React from 'react'
-import { authFormSchema } from '../schema/form.schema'
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
 
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  
-} from "@/components/ui/card"
+import React from "react";
+import { authFormSchema } from "../schema/form.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { getAuthFields } from "@/constants/auth-field";
+import { AuthType } from "@/types/auth.types";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Field,
-  FieldDescription,
-  FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroupTextarea,
-} from "@/components/ui/input-group"
-import Image from 'next/image';
-import Link from 'next/link';
-import { toast } from 'sonner';
+  FieldError,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
-type AuthFormProps = {
-  type: 'sign-in' | 'sign-up';
-};
+import Image from "next/image";
+import Link from "next/link";
+import { toast } from "sonner";
 
+type props ={
+  type: AuthType
+}
 
-const AuthForm = ({ type }: AuthFormProps) => {
+const AuthForm = ({ type }: props) => {
+  const isSignIn = type === "sign-in";
   const formSchema = authFormSchema(type);
-    const form = useForm<z.infer<typeof formSchema>>({
+
+  type FormValues = z.infer<typeof formSchema>;
+
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
-      password:"",
+      password: "",
     },
-  })
+  });
+  const authFields = getAuthFields(type); 
 
-  function onSubmit(data: z.infer<typeof authFormSchema>) {
+  const onSubmit = async (data: FormValues) => {
     try {
-      if(type==='sign-up')
-      {
-        console.log('sign up',data);
+      if (isSignIn) {
+        console.log("Sign In:", data);
+        toast.success("Signed in successfully");
+      } else {
+        console.log("Sign Up:", data);
+        toast.success("Account created successfully");
       }
-      else {
-        console.log('sign - in ',data)
-      }
-
-
-
-
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
     }
-    catch (error){
-      console.log(error);
-      toast .error('There is an eror in onsubmit')
-
-    }
-   
-  }
-  const isSignIn = type === 'sign-in';
+  };
 
   return (
-    <div className='card-border  lg:min-w-139 '>
-      <div className='flex flex-col gap-6 card py-14 px-10 '>
-        <div className=' flex flex-row gap-2 justify-center  ' >
+    <div className="card-border w-full max-w-md mx-auto">
+      <div className="flex flex-col gap-6 card py-10 px-8">
+        <div className="flex flex-row gap-2 justify-center items-center">
           <Image src="/logo.svg" alt="Logo" width={32} height={38} />
-          <h2 className='text-primary-100 '>
+          <h2 className="text-primary-100 font-bold">
             Interview Prep Platform
           </h2>
-
         </div>
-        <h3>Form Platform</h3>
 
+        <h3 className="text-center text-xl font-semibold">
+          {isSignIn ? "Welcome Back" : "Create Your Account"}
+        </h3>
       </div>
-      <div className='w-full '>
-          <Card className="w-full sm:max-w-md">
-       
+
+      <Card className="w-full">
         <CardContent>
-          <form id="form-rhf-demo"  onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            id="auth-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-5"
+          >
             <FieldGroup>
-           {!isSignIn &&   <p> Name</p> }
-           <p>Email</p>
-           <p>Password</p>
-           <button className='btn' type='submit' >{isSignIn ? 'signIn' : 'create an account'}</button>
-
-             
+              {authFields.map((field) => (
+                <Field key={field.name}>
+                  <FieldLabel>{field.label}</FieldLabel>
+                  <Input
+                    type={field.type}
+                    placeholder={field.placeholder}
+                    {...form.register(field.name)}
+                  />
+                  {form.formState.errors[field.name] && (
+                    <FieldError>
+                      {form.formState.errors[field.name]?.message as string}
+                    </FieldError>
+                  )}
+                </Field>
+              ))}
             </FieldGroup>
-          </form>
-          <p className='text-center' >
-            {isSignIn ? 'No Account Yet' : 'Have an Account Already '}
-            <Link href={!isSignIn ? '/sign-in' : '/sign-up' } className='font-bold text-user-primary' >
-            {!isSignIn ? 'Sign in' : 'Sign up'}
-            </Link>
 
+            <Button className="w-full" type="submit">
+              {isSignIn ? "Sign In" : "Create Account"}
+            </Button>
+          </form>
+
+          <p className="text-center mt-6 text-sm">
+            {isSignIn
+              ? "Don’t have an account?"
+              : "Already have an account?"}{" "}
+            <Link
+              href={isSignIn ? "/sign-up" : "/sign-in"}
+              className="font-bold text-user-primary"
+            >
+              {isSignIn ? "Sign up" : "Sign in"}
+            </Link>
           </p>
         </CardContent>
+
         <CardFooter>
-          <Field orientation="horizontal">
-            <Button type="button" variant="outline" onClick={() => form.reset()}>
-              Reset
-            </Button>
-            <Button type="submit" form="form-rhf-demo">
-              Submit
-            </Button>
-          </Field>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => form.reset()}
+          >
+            Reset
+          </Button>
         </CardFooter>
       </Card>
-      </div>
-    
-
-
     </div>
+  );
+};
 
-  )
-}
-
-export default AuthForm
+export default AuthForm;
