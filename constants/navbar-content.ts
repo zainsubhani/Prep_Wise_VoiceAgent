@@ -4,10 +4,10 @@ export const publicNavbarContent = {
     secondary: "Wise",
   },
   links: [
-    { label: "Features", href: "/#features" },
-    { label: "Pricing", href: "/#pricing" },
-    { label: "Enterprise", href: "/#enterprise" },
-    { label: "Candidates", href: "/#candidates" },
+    { label: "Features", href: "/features" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Enterprise", href: "/enterprise" },
+    { label: "Candidates", href: "/candidates" },
   ],
 };
 
