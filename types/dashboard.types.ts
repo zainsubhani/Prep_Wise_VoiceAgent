@@ -1,4 +1,9 @@
 export type Interview = {
+  feedback: ReactNode;
+  feedback: import("react/jsx-runtime").JSX.Element;
+  status: ReactNode;
+  company: ReactNode;
+  role: ReactNode;
   id: number;
   title: string;
   category: string;
