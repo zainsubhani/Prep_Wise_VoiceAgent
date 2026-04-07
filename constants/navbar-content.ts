@@ -20,6 +20,6 @@ export const privateNavbarContent = {
     { label: "Dashboard", href: "/dashboard" },
     { label: "Interviews", href: "/interviews" },
     { label: "Feedback", href: "/feedback" },
-    { label: "Insight", href: "/insight" },
+    { label: "Insights", href: "/insights" },
   ],
 };

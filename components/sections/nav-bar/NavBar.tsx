@@ -83,7 +83,7 @@ export default function Navbar() {
             {!loading && user && (
               <>
                 <Link
-                  href="/dashboard"
+                  href="/takeinterview"
                   className="rounded-sm border border-white/10 px-6 py-3 text-sm uppercase tracking-[0.18em] text-white transition hover:border-cyan-400 hover:text-cyan-400"
                 >
                   Take Interview
