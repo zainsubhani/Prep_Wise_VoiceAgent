@@ -3,41 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Vapi from "@vapi-ai/web";
 import { useRouter } from "next/navigation";
-
-type RoleOption =
-  | "Frontend Developer"
-  | "Backend Engineer"
-  | "Software Engineer Intern";
-
-type InterviewType = "Technical" | "Behavioral" | "Mixed";
-type Difficulty = "Easy" | "Medium" | "Hard";
+import {RoleOption, InterviewType , Difficulty , ROLE_OPTIONS, TranscriptItem , TranscriptMessage , VapiMessage } from "../../types/takeinterview.types"
 
 
 
 
 
-const ROLE_OPTIONS: RoleOption[] = [
-  "Frontend Developer",
-  "Backend Engineer",
-  "Software Engineer Intern",
-];
-type TranscriptItem = {
-  id: string;
-  role: "assistant" | "user";
-  text: string;
-};
 
-type TranscriptMessage = {
-  type: "transcript";
-  transcript: string;
-  role: "assistant" | "user";
-};
-
-type VapiMessage = {
-  type: string;
-  transcript?: string;
-  role?: "assistant" | "user";
-};
 
 function isTranscriptMessage(message: VapiMessage): message is TranscriptMessage {
   return (
