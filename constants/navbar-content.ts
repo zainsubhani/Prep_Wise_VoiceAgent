@@ -5,9 +5,8 @@ export const publicNavbarContent = {
   },
   links: [
     { label: "Features", href: "/features" },
-    { label: "Pricing", href: "/pricing" },
-    { label: "Enterprise", href: "/enterprise" },
-    { label: "Candidates", href: "/candidates" },
+    // { label: "Pricing", href: "/pricing" },
+    { label: "How it Works", href: "/howitworks" },
   ],
 };
 
