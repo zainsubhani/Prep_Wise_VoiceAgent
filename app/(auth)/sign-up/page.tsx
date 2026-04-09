@@ -33,7 +33,8 @@ export default function SignUpPage() {
                   Adaptive interview difficulty
                 </p>
                 <p className="mt-2 text-sm leading-6 text-white/45">
-                  Questions recalibrate in real time based on candidate responses.
+                  Questions recalibrate in real time based on candidate
+                  responses.
                 </p>
               </div>
 

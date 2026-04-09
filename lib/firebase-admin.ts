@@ -14,7 +14,9 @@ if (!process.env.FIREBASE_CLIENT_EMAIL) {
 if (!privateKey) {
   throw new Error("Missing FIREBASE_PRIVATE_KEY");
 }
-
+console.log("ADMIN PROJECT ID:", process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+console.log("ADMIN CLIENT EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
+console.log("PRIVATE KEY PRESENT:", !!privateKey);
 const app =
   getApps().length > 0
     ? getApps()[0]
