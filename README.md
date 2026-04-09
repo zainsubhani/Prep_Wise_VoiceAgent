@@ -118,7 +118,7 @@ OPENROUTER_MODEL=deepseek/deepseek-chat
 # App
 APP_URL=http://localhost:3000
 🧪 Running Locally
-git clone https://github.com/your-username/prepwise
+git clone https://github.com/zainsubhani/Prep_Wise_VoiceAgent
 cd prepwise
 
 npm install
