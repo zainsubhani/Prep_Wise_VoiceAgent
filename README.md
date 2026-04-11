@@ -221,6 +221,65 @@ UI components
 Role options & configs
 
 
+Here’s a slightly more polished version with grouped layers:
+
+```md
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart LR
+    subgraph Client["Client Layer"]
+        U[User]
+        FE[Next.js App Router UI]
+        AUTH[Firebase Auth]
+    end
+
+    subgraph Voice["Real-Time Voice Layer"]
+        VAPI[Vapi Web SDK]
+        AGENT[Vapi Voice Agent]
+        TRANSCRIPT[Transcript Stream]
+    end
+
+    subgraph Backend["Backend Layer"]
+        API[/Next.js Route Handlers/]
+        ADMIN[Firebase Admin SDK]
+    end
+
+    subgraph AI["AI Analysis Layer"]
+        OR[OpenRouter]
+        DS[DeepSeek]
+    end
+
+    subgraph Data["Data Layer"]
+        FS[(Cloud Firestore)]
+    end
+
+    subgraph Output["Product Surfaces"]
+        FB[Feedback Page]
+        INS[Insights Dashboard]
+    end
+
+    U --> FE
+    FE --> AUTH
+    FE --> VAPI
+    VAPI --> AGENT
+    AGENT --> TRANSCRIPT
+    TRANSCRIPT --> FE
+
+    FE --> API
+    API --> OR
+    OR --> DS
+
+    API --> ADMIN
+    ADMIN --> FS
+
+    FS --> FB
+    FS --> INS
+    FE --> FB
+    FE --> INS
+
+
 ---
 
 ## 🔑 Environment Variables
