@@ -282,6 +282,14 @@ flowchart LR
 
 ---
 
+```md
+### Flow Summary
+1. User starts a live voice interview from the Next.js frontend  
+2. Vapi handles the real-time interview conversation and transcript streaming  
+3. On interview completion, the transcript is sent to a backend analysis route  
+4. DeepSeek analyzes the interview and returns structured feedback  
+5. Results are stored in Firestore and rendered in the feedback and insights dashboards  
+
 ## 🔑 Environment Variables
 
 Create a `.env.local` file:
