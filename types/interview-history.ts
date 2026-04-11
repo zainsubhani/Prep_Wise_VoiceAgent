@@ -1,0 +1,21 @@
+export type InterviewRecord = {
+  id: string;
+  userId: string;
+  role: string;
+  company?: string;
+  interviewType: string;
+  difficulty: string;
+  duration: number;
+  transcript?: string;
+  overallScore: number;
+  communication: number;
+  technicalDepth: number;
+  confidence: number;
+  problemSolving: number;
+  clarity: number;
+  strengths: string[];
+  improvements: string[];
+  summary: string;
+  nextSteps: string[];
+  createdAt: string;
+};

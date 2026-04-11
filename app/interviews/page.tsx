@@ -1,53 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { Interview } from "@/types/dashboard.types";
-
-
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useUserInterviews } from "@/hooks/use-user-interviews";
+import { formatInterviewDate } from "@/lib/interview-analytics";
+import Link from "next/link";
 
 export default function InterviewsPage() {
-  const [interviews, setInterviews] = useState<Interview[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const { interviews, loading, error } = useUserInterviews();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        setInterviews([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const q = query(
-          collection(db, "interviews"),
-          where("userId", "==", user.uid),
-          orderBy("createdAt", "desc")
-        );
-
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        })) as unknown as Interview[];
-
-        setInterviews(data);
-      } catch (error) {
-        console.error("Error fetching interviews:", error);
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <main className="min-h-screen bg-[#030711] text-white p-6">
         <p>Loading interviews...</p>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-[#030711] p-6 text-white">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+          <h1 className="text-3xl font-bold">Sign in to view your interviews</h1>
+          <p className="mt-3 text-white/60">
+            Your interview history is private and only available in your account.
+          </p>
+          <Link
+            href="/sign-in"
+            className="mt-6 inline-flex rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-black transition hover:bg-cyan-300"
+          >
+            Go to sign in
+          </Link>
+        </div>
       </main>
     );
   }
@@ -56,6 +40,12 @@ export default function InterviewsPage() {
     <main className="min-h-screen bg-[#030711] text-white p-6">
       <div className="mx-auto max-w-6xl">
         <h1 className="text-3xl font-bold mb-6">Your Interviews</h1>
+
+        {error && (
+          <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-500/10 p-4 text-sm text-rose-100/80">
+            {error}
+          </div>
+        )}
 
         {interviews.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
@@ -80,18 +70,28 @@ export default function InterviewsPage() {
                   <p>
                     <span className="text-white/50">Score:</span>{" "}
                     <span className="font-medium text-cyan-400">
-                      {interview.score ?? "N/A"}
+                      {interview.overallScore ?? "N/A"}
                     </span>
                   </p>
                   <p>
-                    <span className="text-white/50">Status:</span>{" "}
-                    <span className="capitalize">{interview.status}</span>
+                    <span className="text-white/50">Type:</span>{" "}
+                    <span className="capitalize">{interview.interviewType}</span>
                   </p>
-                  {interview.feedback && (
+                  <p>
+                    <span className="text-white/50">Date:</span>{" "}
+                    <span>{formatInterviewDate(interview.createdAt)}</span>
+                  </p>
+                  {interview.summary && (
                     <p className="text-white/70 line-clamp-3">
-                      {interview.feedback}
+                      {interview.summary}
                     </p>
                   )}
+                  <Link
+                    href={`/feedback/${interview.id}`}
+                    className="inline-flex rounded-full bg-cyan-400 px-4 py-2 text-xs font-semibold text-black transition hover:bg-cyan-300"
+                  >
+                    View feedback
+                  </Link>
                 </div>
               </div>
             ))}

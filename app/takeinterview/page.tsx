@@ -1,13 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Vapi from "@vapi-ai/web";
 import { useRouter } from "next/navigation";
 import {
-  RoleOption,
-  InterviewType,
+  BriefcaseBusiness,
+  Clock3,
+  Mic,
+  MicOff,
+  Radio,
+  Sparkles,
+  Volume2,
+  WandSparkles,
+} from "lucide-react";
+import {
   Difficulty,
+  InterviewType,
   ROLE_OPTIONS,
+  RoleOption,
   TranscriptItem,
   TranscriptMessage,
   VapiMessage,
@@ -24,13 +34,17 @@ function isTranscriptMessage(
 }
 
 const TYPE_OPTIONS: InterviewType[] = ["Technical", "Behavioral", "Mixed"];
-const DIFFICULTY_OPTIONS: Difficulty[] = ["Easy", "Medium", "Hard"];
+const DIFFICULTY_LEVELS: Difficulty[] = ["Easy", "Medium", "Hard"];
 const DURATION_OPTIONS = [15, 30, 45, 60, 90, 120];
 
 type AnalyzeResponse = {
   error?: string;
   interviewId?: string;
 };
+
+function cn(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export default function TakeInterviewPage() {
   const router = useRouter();
@@ -54,7 +68,7 @@ export default function TakeInterviewPage() {
   const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(duration * 60);
   const [volumeLevel, setVolumeLevel] = useState(0);
-  const [status, setStatus] = useState("Ready");
+  const [status, setStatus] = useState("Ready for a live session");
   const [transcriptItems, setTranscriptItems] = useState<TranscriptItem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,6 +100,40 @@ export default function TakeInterviewPage() {
     [volumeLevel]
   );
 
+  const sessionLocked = isInterviewStarted || isAnalyzing;
+
+  const statusTone = isAnalyzing
+    ? "text-amber-200 border-amber-400/25 bg-amber-500/10"
+    : error
+      ? "text-rose-100 border-rose-400/25 bg-rose-500/10"
+      : isInterviewStarted
+        ? "text-emerald-100 border-emerald-400/25 bg-emerald-500/10"
+        : "text-cyan-100 border-cyan-400/25 bg-cyan-500/10";
+
+  const quickStats = [
+    {
+      label: "Role Track",
+      value: role,
+      icon: BriefcaseBusiness,
+    },
+    {
+      label: "Interview Mode",
+      value: interviewType,
+      icon: Sparkles,
+    },
+    {
+      label: "Time Window",
+      value: `${duration} min`,
+      icon: Clock3,
+    },
+  ];
+
+  const readinessChecklist = [
+    isOnline ? "Stable connection detected" : "Reconnect before starting",
+    isMuted ? "Microphone muted" : "Microphone available",
+    isAssistantSpeaking ? "AI interviewer is talking" : "AI interviewer is listening",
+  ];
+
   useEffect(() => {
     if (!isInterviewStarted) {
       setTimeLeft(duration * 60);
@@ -109,9 +157,9 @@ export default function TakeInterviewPage() {
     return () => clearInterval(timer);
   }, [isInterviewStarted, isInterviewEnded]);
 
-  const analyzeAndSave = async () => {
+  const analyzeAndSave = useCallback(async () => {
     try {
-      setStatus("Analyzing interview...");
+      setStatus("Analyzing interview performance");
       setError(null);
       setIsAnalyzing(true);
 
@@ -127,7 +175,7 @@ export default function TakeInterviewPage() {
       }
 
       const payload = {
-        userId: "demo-user-id", // replace with your real logged-in user id
+        userId: "demo-user-id",
         role,
         company: "",
         interviewType,
@@ -177,7 +225,7 @@ export default function TakeInterviewPage() {
     } finally {
       setIsAnalyzing(false);
     }
-  };
+  }, [difficulty, duration, interviewType, role, router]);
 
   useEffect(() => {
     const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
@@ -187,14 +235,14 @@ export default function TakeInterviewPage() {
     vapiRef.current = vapi;
 
     vapi.on("call-start", () => {
-      setStatus("Call started");
+      setStatus("Interview live");
       setIsInterviewStarted(true);
       setIsInterviewEnded(false);
       setError(null);
     });
 
     vapi.on("call-end", () => {
-      setStatus("Call ended");
+      setStatus("Session finished");
       setIsInterviewStarted(false);
       setIsInterviewEnded(true);
       setIsAssistantSpeaking(false);
@@ -249,7 +297,7 @@ export default function TakeInterviewPage() {
           : "Voice session failed. Please try again.";
 
       setError(errorMessage);
-      setStatus("Error");
+      setStatus("Connection issue");
       setIsInterviewStarted(false);
       setIsAssistantSpeaking(false);
     });
@@ -261,7 +309,7 @@ export default function TakeInterviewPage() {
 
       vapiRef.current = null;
     };
-  }, [router, role, interviewType, difficulty, duration]);
+  }, [analyzeAndSave, difficulty, duration, interviewType, role, router]);
 
   const ensureMicrophoneAccess = async () => {
     try {
@@ -304,7 +352,7 @@ export default function TakeInterviewPage() {
       const hasMicAccess = await ensureMicrophoneAccess();
       if (!hasMicAccess) return;
 
-      setStatus("Connecting...");
+      setStatus("Connecting to interviewer");
       hasAnalyzedRef.current = false;
       setTranscriptItems([]);
       transcriptItemsRef.current = [];
@@ -332,7 +380,7 @@ export default function TakeInterviewPage() {
 
   const endInterview = async (autoEnded = false) => {
     try {
-      setStatus(autoEnded ? "Time is up" : "Ending...");
+      setStatus(autoEnded ? "Time window complete" : "Ending session");
 
       if (!vapiRef.current) return;
 
@@ -356,65 +404,173 @@ export default function TakeInterviewPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#030711] text-white">
-      <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        <div className="mb-6 flex flex-col gap-4 sm:mb-8">
-          <div className="rounded-2xl border border-white/10 bg-[#081120] px-4 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-white/40">
-                  Network
-                </p>
-                <p
-                  className={`mt-1 text-sm font-medium ${
-                    isOnline ? "text-green-400" : "text-red-400"
-                  }`}
+    <main className="min-h-screen overflow-hidden bg-[#07111f] text-white">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(255,176,32,0.16),transparent_26%),radial-gradient(circle_at_top_right,rgba(24,214,195,0.16),transparent_24%),radial-gradient(circle_at_bottom,rgba(48,88,191,0.2),transparent_36%)]" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-size-[72px_72px] opacity-25" />
+
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <section className="overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(10,22,42,0.96),rgba(9,16,28,0.85))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.34)] sm:p-8">
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,1.25fr)_360px]">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+                  <Radio className="h-3.5 w-3.5" />
+                  Live AI Interview Studio
+                </span>
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em]",
+                    isOnline
+                      ? "border-emerald-300/20 bg-emerald-400/10 text-emerald-200"
+                      : "border-rose-300/20 bg-rose-500/10 text-rose-200"
+                  )}
                 >
-                  {isOnline ? "Online" : "Offline"}
-                </p>
+                  <span
+                    className={cn(
+                      "h-2 w-2 rounded-full",
+                      isOnline ? "bg-emerald-300" : "bg-rose-300"
+                    )}
+                  />
+                  {isOnline ? "Network Ready" : "Offline"}
+                </span>
               </div>
-              <div
-                className={`h-2.5 w-2.5 rounded-full ${
-                  isOnline ? "bg-green-400" : "bg-red-400"
-                }`}
-              />
-            </div>
-          </div>
 
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-cyan-400 sm:text-sm">
-              Live AI Interview
-            </p>
-            <h1 className="mt-2 text-2xl font-bold sm:text-3xl lg:text-4xl">
-              Take Interview
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">
-              Launch a voice interview, stream the transcript live, and generate
-              AI feedback at the end.
-            </p>
-          </div>
-        </div>
+              <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
+                Turn mock interviews into a premium live demo experience.
+              </h1>
 
-        <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
-          <section className="xl:sticky xl:top-6 xl:self-start">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_40px_rgba(0,0,0,0.2)] backdrop-blur-sm sm:p-6">
-              <h2 className="text-lg font-semibold sm:text-xl">
-                Interview Setup
-              </h2>
-              <p className="mt-2 text-sm text-white/50">
-                Select the role, format, difficulty, and duration.
+              <p className="mt-5 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+                Configure the session, launch the AI interviewer, watch the
+                conversation unfold in real time, and walk away with analysis
+                that feels polished enough to showcase.
               </p>
 
-              <div className="mt-6 space-y-4">
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                {quickStats.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <div
+                      key={item.label}
+                      className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/8 text-cyan-200">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.22em] text-white/40">
+                            {item.label}
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-white">
+                            {item.value}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-5 backdrop-blur-xl">
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <label className="mb-2 block text-sm text-white/60">
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/45">
+                    Session Status
+                  </p>
+                  <h2 className="mt-2 text-2xl font-black text-white">
+                    {status}
+                  </h2>
+                </div>
+                <div
+                  className={cn(
+                    "rounded-2xl border px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em]",
+                    statusTone
+                  )}
+                >
+                  {isAnalyzing
+                    ? "Analyzing"
+                    : isInterviewStarted
+                      ? "Live"
+                      : error
+                        ? "Attention"
+                        : "Standby"}
+                </div>
+              </div>
+
+              <div className="mt-5 rounded-[26px] border border-cyan-300/15 bg-[#071629] p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.2em] text-white/45">
+                      Remaining Time
+                    </p>
+                    <div className="mt-2 text-5xl font-black tracking-[-0.05em] text-white">
+                      {formattedTime}
+                    </div>
+                  </div>
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5 text-cyan-200">
+                    <Clock3 className="h-7 w-7" />
+                  </div>
+                </div>
+
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-[linear-gradient(90deg,#0fd7c7,#ffd166)] transition-all duration-300"
+                    style={{ width: `${Math.max(8, Math.min(100, normalizedVolume))}%` }}
+                  />
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-sm text-slate-300">
+                  <span>Voice activity</span>
+                  <span>{Math.round(normalizedVolume)}%</span>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                {readinessChecklist.map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-slate-300"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+          <section className="xl:sticky xl:top-6 xl:self-start">
+            <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,21,37,0.96),rgba(8,15,27,0.92))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.28)] sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">
+                    Interview Setup
+                  </p>
+                  <h2 className="mt-3 text-2xl font-black text-white">
+                    Build the session
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    Shape the exact interview experience before you go live.
+                  </p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-200">
+                  <WandSparkles className="h-5 w-5" />
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-5">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
                     Role
                   </label>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value as RoleOption)}
-                    disabled={isInterviewStarted || isAnalyzing}
-                    className="w-full rounded-2xl border border-white/10 bg-[#081120] px-4 py-3 text-sm outline-none transition focus:border-cyan-400/40"
+                    disabled={sessionLocked}
+                    className="w-full rounded-2xl border border-white/10 bg-[#091627] px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/40 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {ROLE_OPTIONS.map((item) => (
                       <option key={item} value={item}>
@@ -425,63 +581,80 @@ export default function TakeInterviewPage() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm text-white/60">
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
                     Interview Type
                   </label>
-                  <select
-                    value={interviewType}
-                    onChange={(e) =>
-                      setInterviewType(e.target.value as InterviewType)
-                    }
-                    disabled={isInterviewStarted || isAnalyzing}
-                    className="w-full rounded-2xl border border-white/10 bg-[#081120] px-4 py-3 text-sm outline-none transition focus:border-cyan-400/40"
-                  >
+                  <div className="grid grid-cols-1 gap-2">
                     {TYPE_OPTIONS.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setInterviewType(item)}
+                        disabled={sessionLocked}
+                        className={cn(
+                          "rounded-2xl border px-4 py-3 text-left transition",
+                          interviewType === item
+                            ? "border-cyan-300/35 bg-cyan-400/12 text-white"
+                            : "border-white/10 bg-[#091627] text-slate-300 hover:border-white/20 hover:bg-white/6",
+                          sessionLocked && "cursor-not-allowed opacity-60"
+                        )}
+                      >
+                        <div className="text-sm font-semibold">{item}</div>
+                        <div className="mt-1 text-xs text-white/45">
+                          {item === "Technical"
+                            ? "Depth, implementation, and engineering trade-offs."
+                            : item === "Behavioral"
+                              ? "Stories, communication, and leadership signal."
+                              : "A blended session across technical and soft-skill pressure."}
+                        </div>
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm text-white/60">
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
                     Difficulty
                   </label>
-                  <select
-                    value={difficulty}
-                    onChange={(e) =>
-                      setDifficulty(e.target.value as Difficulty)
-                    }
-                    disabled={isInterviewStarted || isAnalyzing}
-                    className="w-full rounded-2xl border border-white/10 bg-[#081120] px-4 py-3 text-sm outline-none transition focus:border-cyan-400/40"
-                  >
-                    {DIFFICULTY_OPTIONS.map((item) => (
-                      <option key={item} value={item}>
+                  <div className="grid grid-cols-3 gap-2">
+                    {DIFFICULTY_LEVELS.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setDifficulty(item)}
+                        disabled={sessionLocked}
+                        className={cn(
+                          "rounded-2xl border px-3 py-3 text-sm font-semibold transition",
+                          difficulty === item
+                            ? "border-amber-300/35 bg-amber-400/12 text-amber-100"
+                            : "border-white/10 bg-[#091627] text-slate-300 hover:border-white/20 hover:bg-white/6",
+                          sessionLocked && "cursor-not-allowed opacity-60"
+                        )}
+                      >
                         {item}
-                      </option>
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm text-white/60">
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
                     Duration
                   </label>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div className="grid grid-cols-3 gap-2">
                     {DURATION_OPTIONS.map((item) => (
                       <button
                         key={item}
                         type="button"
                         onClick={() => setDuration(item)}
-                        disabled={isInterviewStarted || isAnalyzing}
-                        className={`rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                        disabled={sessionLocked}
+                        className={cn(
+                          "rounded-2xl border px-3 py-3 text-sm font-semibold transition",
                           duration === item
-                            ? "bg-cyan-400 text-black"
-                            : "border border-white/10 bg-[#081120] text-white/70 hover:bg-white/10"
-                        } ${
-                          isInterviewStarted || isAnalyzing ? "opacity-50" : ""
-                        }`}
+                            ? "border-cyan-300/35 bg-[linear-gradient(135deg,rgba(15,215,199,0.22),rgba(255,209,102,0.16))] text-white"
+                            : "border-white/10 bg-[#091627] text-slate-300 hover:border-white/20 hover:bg-white/6",
+                          sessionLocked && "cursor-not-allowed opacity-60"
+                        )}
                       >
                         {item}m
                       </button>
@@ -490,47 +663,59 @@ export default function TakeInterviewPage() {
                 </div>
               </div>
 
-              <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
-                <p className="text-sm text-cyan-300">Timer</p>
-                <h3 className="mt-2 text-3xl font-bold sm:text-4xl">
-                  {formattedTime}
-                </h3>
-                <p className="mt-2 text-sm text-white/60">
-                  Max interview length: {duration} minutes
+              <div className="mt-6 rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,rgba(255,209,102,0.12),rgba(15,215,199,0.08))] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-100/80">
+                  Presentation Tip
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-200">
+                  Use structured answers, state your assumptions, and narrate
+                  trade-offs clearly. This screen is optimized to make that flow
+                  look intentional during a showcase.
                 </p>
               </div>
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-6 grid gap-3">
                 {!isInterviewStarted ? (
                   <button
                     onClick={startInterview}
                     disabled={loading || isAnalyzing}
-                    className="w-full rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-black transition hover:opacity-90 disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#0fd7c7,#ffd166)] px-5 py-4 text-sm font-bold text-[#08111d] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {loading ? "Starting..." : "Start Interview"}
+                    <Mic className="h-4 w-4" />
+                    {loading ? "Starting session..." : "Start Interview"}
                   </button>
                 ) : (
-                  <>
+                  <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={toggleMute}
                       disabled={isAnalyzing}
-                      className="w-full rounded-2xl border border-white/10 bg-[#081120] px-5 py-3 font-semibold transition hover:bg-white/10 disabled:opacity-60 sm:flex-1"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#091627] px-5 py-4 text-sm font-bold text-white transition hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {isMuted ? "Unmute" : "Mute"}
+                      {isMuted ? (
+                        <>
+                          <Mic className="h-4 w-4" />
+                          Unmute
+                        </>
+                      ) : (
+                        <>
+                          <MicOff className="h-4 w-4" />
+                          Mute
+                        </>
+                      )}
                     </button>
                     <button
                       onClick={() => endInterview(false)}
                       disabled={isAnalyzing}
-                      className="w-full rounded-2xl bg-red-500 px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-60 sm:flex-1"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#ff6b6b] px-5 py-4 text-sm font-bold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      End
+                      End Session
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
 
               {error && (
-                <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-200">
+                <div className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-500/10 p-4 text-sm leading-6 text-rose-100">
                   {error}
                 </div>
               )}
@@ -538,131 +723,201 @@ export default function TakeInterviewPage() {
           </section>
 
           <section className="grid min-w-0 gap-6">
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_40px_rgba(0,0,0,0.2)] backdrop-blur-sm sm:p-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+              <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,21,37,0.96),rgba(8,15,27,0.92))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.28)] sm:p-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                   <div>
-                    <p className="text-sm text-white/50">Current Status</p>
-                    <h2 className="mt-1 text-xl font-semibold sm:text-2xl">
-                      {status}
+                    <p className="text-xs uppercase tracking-[0.24em] text-white/45">
+                      Live Command Deck
+                    </p>
+                    <h2 className="mt-3 text-3xl font-black text-white">
+                      Control the room
                     </h2>
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+                      Everything happening in the interview is visible at a
+                      glance, from assistant state to volume response to current
+                      session configuration.
+                    </p>
                   </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+                    {transcriptItems.length} transcript messages captured
+                  </div>
+                </div>
 
-                  <div className="w-full rounded-2xl border border-white/10 bg-[#081120] px-4 py-3 sm:w-auto">
+                <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs uppercase tracking-[0.2em] text-white/40">
                       Assistant
                     </p>
-                    <p className="mt-1 text-sm font-medium">
+                    <p className="mt-3 text-lg font-semibold text-white">
                       {isAssistantSpeaking ? "Speaking" : "Listening"}
+                    </p>
+                  </div>
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                      Audio
+                    </p>
+                    <p className="mt-3 text-lg font-semibold text-white">
+                      {isMuted ? "Muted" : "Open"}
+                    </p>
+                  </div>
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                      Difficulty
+                    </p>
+                    <p className="mt-3 text-lg font-semibold text-white">
+                      {difficulty}
+                    </p>
+                  </div>
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                      Timer
+                    </p>
+                    <p className="mt-3 text-lg font-semibold text-white">
+                      {formattedTime}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-6">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-sm text-white/50">Voice Activity</p>
-                    <p className="text-xs text-white/40">
+                <div className="mt-6 rounded-[28px] border border-white/10 bg-[#081422] p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-200">
+                        <Volume2 className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          Voice response meter
+                        </p>
+                        <p className="text-xs text-white/45">
+                          Tracks live signal intensity from the conversation.
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-cyan-200">
                       {Math.round(normalizedVolume)}%
-                    </p>
+                    </span>
                   </div>
 
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-white/10">
+                  <div className="mt-5 h-4 overflow-hidden rounded-full bg-white/8">
                     <div
-                      className="h-full rounded-full bg-cyan-400 transition-all duration-200"
+                      className="h-full rounded-full bg-[linear-gradient(90deg,#0fd7c7,#34d399,#ffd166)] transition-all duration-200"
                       style={{ width: `${normalizedVolume}%` }}
                     />
                   </div>
                 </div>
-
-                <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-[#081120] p-4">
-                    <p className="text-sm text-white/50">Role</p>
-                    <p className="mt-1 text-sm font-medium sm:text-base">
-                      {role}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-[#081120] p-4">
-                    <p className="text-sm text-white/50">Type</p>
-                    <p className="mt-1 text-sm font-medium sm:text-base">
-                      {interviewType}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-[#081120] p-4 sm:col-span-2 xl:col-span-1">
-                    <p className="text-sm text-white/50">Difficulty</p>
-                    <p className="mt-1 text-sm font-medium sm:text-base">
-                      {difficulty}
-                    </p>
-                  </div>
-                </div>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_40px_rgba(0,0,0,0.2)] backdrop-blur-sm sm:p-6">
-                <p className="text-sm uppercase tracking-[0.2em] text-white/40">
-                  Interview Panel
+              <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,26,42,0.98),rgba(10,18,31,0.92))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.28)] sm:p-6">
+                <p className="text-xs uppercase tracking-[0.24em] text-amber-200/80">
+                  Interviewer Presence
                 </p>
 
-                <div className="mt-5 flex items-center justify-center">
-                  <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-400/10 sm:h-36 sm:w-36">
-                    <div className="absolute inset-0 animate-pulse rounded-full border border-cyan-400/20" />
-                    <div className="text-center">
-                      <div className="mx-auto h-8 w-8 rounded-full bg-cyan-400/80 sm:h-10 sm:w-10" />
-                      <p className="mt-3 text-sm text-white/70">
-                        AI Interviewer
-                      </p>
+                <div className="mt-6 flex items-center justify-center">
+                  <div className="relative flex h-44 w-44 items-center justify-center rounded-full border border-cyan-300/20 bg-[radial-gradient(circle_at_center,rgba(15,215,199,0.22),rgba(7,17,31,0.2)_65%)]">
+                    <div
+                      className={cn(
+                        "absolute inset-3 rounded-full border transition duration-300",
+                        isAssistantSpeaking
+                          ? "animate-pulse border-cyan-300/60"
+                          : "border-white/10"
+                      )}
+                    />
+                    <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_180deg_at_50%_50%,rgba(255,209,102,0.2),rgba(15,215,199,0.08),rgba(59,130,246,0.16),rgba(255,209,102,0.2))]" />
+                    <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-white/10 bg-[#081522] text-white">
+                      <Sparkles className="h-10 w-10 text-cyan-200" />
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-500/10 p-4">
-                  <p className="text-sm font-medium text-amber-300">
-                    Live Tip
+                <div className="mt-6 text-center">
+                  <h3 className="text-2xl font-black text-white">
+                    AI Interviewer
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    {isAssistantSpeaking
+                      ? "Speaking now. Let it finish before jumping in."
+                      : "Ready for your next answer. Keep it structured and crisp."}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-white/70">
-                    Keep answers structured. Use concise reasoning, examples,
-                    and trade-offs.
+                </div>
+
+                <div className="mt-6 rounded-2xl border border-amber-300/15 bg-amber-400/8 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/80">
+                    Showcase Prompt
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-200">
+                    Answer with context, decision, and trade-off. That pattern
+                    makes the live demo feel much more intentional.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="min-w-0 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_10px_40px_rgba(0,0,0,0.2)] backdrop-blur-sm sm:p-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,21,37,0.96),rgba(8,15,27,0.92))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.28)] sm:p-6">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold sm:text-xl">
+                  <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">
                     Live Transcript
+                  </p>
+                  <h2 className="mt-3 text-3xl font-black text-white">
+                    Conversation stream
                   </h2>
-                  <p className="mt-1 text-sm text-white/50">
-                    Real-time conversation stream from the interview.
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    Real-time dialogue appears here with clear speaker framing so
+                    the session reads well during demos and reviews.
                   </p>
                 </div>
 
-                <div className="w-fit rounded-xl border border-white/10 bg-[#081120] px-3 py-2 text-sm text-white/60">
-                  {transcriptItems.length} messages
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+                  {transcriptItems.length === 0
+                    ? "Awaiting first message"
+                    : `${transcriptItems.length} messages live`}
                 </div>
               </div>
 
-              <div className="mt-5 h-90 overflow-y-auto pr-1 sm:h-105 lg:h-125">
+              <div className="mt-6 h-[30rem] overflow-y-auto pr-1 sm:h-[38rem]">
                 {transcriptItems.length === 0 ? (
-                  <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-white/40">
-                    The transcript will appear here once the call starts.
+                  <div className="flex h-full items-center justify-center rounded-[28px] border border-dashed border-white/10 bg-[#081422] p-8 text-center">
+                    <div className="max-w-md">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-200">
+                        <Radio className="h-7 w-7" />
+                      </div>
+                      <h3 className="mt-5 text-2xl font-black text-white">
+                        Ready for the first exchange
+                      </h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-400">
+                        Once the call starts, the transcript will populate here
+                        in real time with interviewer and candidate messages.
+                      </p>
+                    </div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {transcriptItems.map((item) => (
                       <div
                         key={item.id}
-                        className={`max-w-[92%] rounded-2xl px-4 py-3 sm:max-w-[85%] ${
+                        className={cn(
+                          "max-w-[94%] rounded-[26px] border px-5 py-4 shadow-[0_14px_40px_rgba(0,0,0,0.14)] sm:max-w-[84%]",
                           item.role === "assistant"
-                            ? "border border-cyan-400/20 bg-cyan-400/10"
-                            : "ml-auto border border-white/10 bg-white/5"
-                        }`}
+                            ? "border-cyan-300/18 bg-[linear-gradient(135deg,rgba(15,215,199,0.14),rgba(15,215,199,0.05))]"
+                            : "ml-auto border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))]"
+                        )}
                       >
-                        <p className="mb-1 text-xs uppercase tracking-[0.2em] text-white/40">
-                          {item.role === "assistant"
-                            ? "Interviewer"
-                            : "Candidate"}
-                        </p>
-                        <p className="text-sm leading-6 text-white/85">
+                        <div className="mb-2 flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
+                              item.role === "assistant"
+                                ? "bg-cyan-400/12 text-cyan-200"
+                                : "bg-white/8 text-slate-200"
+                            )}
+                          >
+                            {item.role === "assistant"
+                              ? "Interviewer"
+                              : "Candidate"}
+                          </span>
+                        </div>
+                        <p className="text-sm leading-7 text-white/88 sm:text-[15px]">
                           {item.text}
                         </p>
                       </div>
