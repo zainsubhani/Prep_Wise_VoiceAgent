@@ -139,7 +139,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply overflow-x-hidden bg-background text-foreground;
   }
   p {
     @apply text-light-100;
@@ -258,15 +258,15 @@
   }
 
   .auth-layout {
-    @apply flex items-center justify-center mx-auto max-w-7xl min-h-screen max-sm:px-4 max-sm:py-8;
+    @apply flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-6 lg:px-8;
   }
 
   .root-layout {
-    @apply flex mx-auto max-w-7xl flex-col gap-12 my-12 px-16 max-sm:px-4 max-sm:my-8;
+    @apply mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:gap-12 lg:px-8 lg:py-12;
   }
 
   .card-cta {
-    @apply flex flex-row blue-gradient-dark rounded-3xl px-16 py-6 items-center justify-between max-sm:px-4;
+    @apply flex flex-col gap-6 blue-gradient-dark rounded-3xl px-4 py-6 items-center justify-between sm:px-8 lg:flex-row lg:px-16;
   }
 
   .interviews-section {
@@ -286,7 +286,7 @@
   }
 
   .card-interview {
-    @apply dark-gradient rounded-2xl min-h-full flex flex-col p-6 relative overflow-hidden gap-10 justify-between;
+    @apply dark-gradient rounded-2xl min-h-full flex flex-col p-5 sm:p-6 relative overflow-hidden gap-8 sm:gap-10 justify-between;
 
     .badge-text {
       @apply text-sm font-semibold capitalize;

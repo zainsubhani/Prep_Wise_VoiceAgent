@@ -68,17 +68,17 @@ export default function DashboardPage() {
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(0,255,224,0.07),transparent_25%),radial-gradient(circle_at_bottom_left,rgba(0,119,255,0.05),transparent_20%)]" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[72px_72px] opacity-20" />
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-14 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:gap-14 lg:px-8">
         <header>
           <p className="text-sm uppercase tracking-[0.28em] text-cyan-400">
             Dashboard
           </p>
-          <h1 className="mt-3 text-5xl font-black tracking-tight text-white">
+          <h1 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
             {user?.displayName
               ? `${user.displayName}&apos;s Interview Command Center`
               : "Your Interview Command Center"}
           </h1>
-          <p className="mt-4 max-w-3xl text-lg leading-8 text-white/55">
+          <p className="mt-4 max-w-3xl text-base leading-7 text-white/55 sm:text-lg sm:leading-8">
             Track your real interview performance, review your latest feedback,
             and keep practicing with data tied to your own sessions.
           </p>
@@ -88,13 +88,13 @@ export default function DashboardPage() {
           {dashboardStats.map((stat) => (
             <div
               key={stat.label}
-              className="rounded-3xl border border-white/10 bg-white/3 p-6 backdrop-blur-sm"
+              className="min-w-0 rounded-3xl border border-white/10 bg-white/3 p-5 backdrop-blur-sm sm:p-6"
             >
               <p className="text-sm uppercase tracking-[0.22em] text-white/40">
                 {stat.label}
               </p>
 
-              <h2 className="mt-4 text-4xl font-black text-cyan-400">
+              <h2 className="mt-4 break-words text-3xl font-black text-cyan-400 sm:text-4xl">
                 {stat.value}
               </h2>
 
@@ -106,12 +106,12 @@ export default function DashboardPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-[28px] border border-white/10 bg-[#0a1022]/85 p-6 backdrop-blur-xl">
+          <div className="rounded-[28px] border border-white/10 bg-[#0a1022]/85 p-5 backdrop-blur-xl sm:p-6">
             <div className="mb-8">
               <p className="text-sm uppercase tracking-[0.24em] text-cyan-400">
                 Progress Overview
               </p>
-              <h2 className="mt-3 text-3xl font-black text-white">
+              <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
                 Skill Performance
               </h2>
             </div>
@@ -148,12 +148,12 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="rounded-[28px] border border-white/10 bg-[#0a1022]/85 p-6 backdrop-blur-xl">
+          <div className="rounded-[28px] border border-white/10 bg-[#0a1022]/85 p-5 backdrop-blur-xl sm:p-6">
             <div className="mb-8">
               <p className="text-sm uppercase tracking-[0.24em] text-cyan-400">
                 Recent Activity
               </p>
-              <h2 className="mt-3 text-3xl font-black text-white">
+              <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
                 Latest Updates
               </h2>
             </div>
@@ -188,7 +188,7 @@ export default function DashboardPage() {
         </section>
 
         <section>
-          <h2 className="mb-8 text-4xl font-black tracking-tight text-white">
+          <h2 className="mb-8 text-3xl font-black tracking-tight text-white sm:text-4xl">
             Pick Your Interview
           </h2>
 
@@ -196,15 +196,15 @@ export default function DashboardPage() {
             {practiceTracks.map((track) => (
               <article
                 key={track.id}
-                className="rounded-[28px] border border-white/10 bg-[#0a1022]/85 p-6 backdrop-blur-xl"
+                className="rounded-[28px] border border-white/10 bg-[#0a1022]/85 p-5 backdrop-blur-xl sm:p-6"
               >
                 <span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
                   {track.category}
                 </span>
-                <h3 className="mt-5 text-2xl font-semibold text-white">
+                <h3 className="mt-5 text-xl font-semibold text-white sm:text-2xl">
                   {track.title}
                 </h3>
-                <p className="mt-4 min-h-24 text-base leading-8 text-white/55">
+                <p className="mt-4 text-base leading-7 text-white/55 sm:min-h-24 sm:leading-8">
                   {track.description}
                 </p>
                 <Link
@@ -219,8 +219,8 @@ export default function DashboardPage() {
         </section>
 
         <section>
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <h2 className="text-4xl font-black tracking-tight text-white">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
               Your Past Interviews
             </h2>
             <Link href="/feedback" className="text-sm font-semibold text-cyan-300">
@@ -239,9 +239,9 @@ export default function DashboardPage() {
               {interviews.slice(0, 3).map((interview) => (
                 <article
                   key={interview.id}
-                  className="rounded-[28px] border border-white/10 bg-[#0a1022]/85 p-6 backdrop-blur-xl"
+                  className="rounded-[28px] border border-white/10 bg-[#0a1022]/85 p-5 backdrop-blur-xl sm:p-6"
                 >
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <span className="rounded-full bg-white/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
                       {interview.interviewType}
                     </span>
@@ -250,14 +250,14 @@ export default function DashboardPage() {
                     </span>
                   </div>
 
-                  <h3 className="mt-5 text-2xl font-semibold text-white">
+                  <h3 className="mt-5 text-xl font-semibold text-white sm:text-2xl">
                     {interview.role}
                   </h3>
                   <p className="mt-2 text-sm text-white/45">
                     {interview.company || "General"} ·{" "}
                     {formatInterviewDate(interview.createdAt)}
                   </p>
-                  <p className="mt-5 min-h-24 text-base leading-8 text-white/55">
+                  <p className="mt-5 text-base leading-7 text-white/55 sm:min-h-24 sm:leading-8">
                     {interview.summary}
                   </p>
 

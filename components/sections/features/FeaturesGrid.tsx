@@ -27,12 +27,12 @@ const features = [
 
 export default function FeaturesGrid() {
   return (
-    <section className="px-4 py-20 sm:px-6 lg:px-8">
+    <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feature, i) => (
           <div
             key={i}
-            className="rounded-2xl border border-white/10 bg-white/3 p-6 backdrop-blur-md hover:border-cyan-400/40 transition"
+            className="rounded-2xl border border-white/10 bg-white/3 p-5 backdrop-blur-md transition hover:border-cyan-400/40 sm:p-6"
           >
             <h3 className="text-xl font-semibold text-white">
               {feature.title}

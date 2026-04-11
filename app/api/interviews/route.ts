@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     const interviews = snapshot.docs
-      .map((doc) => ({
+      .map((doc): { id: string; createdAt?: unknown; [key: string]: unknown } => ({
         id: doc.id,
         ...doc.data(),
       }))

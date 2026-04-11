@@ -2,7 +2,7 @@ import { liveSessionContent } from "@/constants/live-session";
 
 export default function LiveSessionSection() {
   return (
-    <section className="relative bg-[#050816] px-4 py-20 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="relative overflow-hidden bg-[#050816] px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       
       {/* GRID BACKGROUND */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -12,13 +12,13 @@ export default function LiveSessionSection() {
       <div className="relative mx-auto max-w-7xl">
 
         {/* ===== STATS ===== */}
-        <div className="grid grid-cols-2 md:grid-cols-4 border border-white/10 rounded-xl overflow-hidden mb-16">
+        <div className="mb-12 grid grid-cols-1 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-2 md:mb-16 md:grid-cols-4">
           {liveSessionContent.stats.map((stat, i) => (
             <div
               key={i}
-              className="p-6 text-center border-r border-b md:border-b-0 border-white/10 last:border-r-0"
+              className="border-b border-white/10 p-5 text-center sm:border-r sm:p-6 md:border-b-0 last:border-b-0 sm:even:border-r-0 md:even:border-r md:last:border-r-0"
             >
-              <h3 className="text-3xl md:text-5xl font-bold text-cyan-400">
+              <h3 className="text-3xl font-bold text-cyan-400 md:text-5xl">
                 {stat.value}
               </h3>
               <p className="mt-2 text-xs tracking-widest uppercase text-white/40">
@@ -34,16 +34,16 @@ export default function LiveSessionSection() {
             {liveSessionContent.badge}
           </p>
 
-          <h2 className="text-4xl md:text-6xl font-extrabold text-white">
+          <h2 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-6xl">
             {liveSessionContent.title}
           </h2>
         </div>
 
         {/* ===== MAIN CONTENT ===== */}
-        <div className="grid lg:grid-cols-2 gap-10 items-center bg-white/3 border border-white/10 rounded-2xl p-6 md:p-10 backdrop-blur">
+        <div className="grid items-center gap-8 rounded-2xl border border-white/10 bg-white/3 p-4 backdrop-blur sm:p-6 md:p-10 lg:grid-cols-2 lg:gap-10">
 
           {/* LEFT: TERMINAL UI */}
-          <div className="bg-black rounded-xl p-6 font-mono text-sm text-green-400 shadow-inner">
+          <div className="overflow-x-auto rounded-xl bg-black p-4 font-mono text-xs text-green-400 shadow-inner sm:p-6 sm:text-sm">
             
             <div className="flex gap-2 mb-4">
               <span className="w-3 h-3 bg-red-500 rounded-full" />
@@ -75,7 +75,7 @@ export default function LiveSessionSection() {
 
           {/* RIGHT: TEXT */}
           <div>
-            <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+            <h3 className="mb-6 text-2xl font-bold leading-tight text-white sm:text-3xl md:text-4xl">
               {liveSessionContent.rightSection.title}
             </h3>
 

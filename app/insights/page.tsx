@@ -21,7 +21,7 @@ export default function InsightsPage() {
   if (authLoading || loading) {
     return (
       <main className="min-h-screen bg-[#030711] text-white">
-        <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
             Loading insights...
           </p>
@@ -33,9 +33,9 @@ export default function InsightsPage() {
   if (!user) {
     return (
       <main className="min-h-screen bg-[#030711] text-white">
-        <div className="mx-auto max-w-4xl px-6 py-12">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
-            <h1 className="text-3xl font-bold">Sign in to unlock your insights</h1>
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-center sm:p-8">
+            <h1 className="text-2xl font-bold sm:text-3xl">Sign in to unlock your insights</h1>
             <p className="mt-3 text-white/60">
               We use your completed interviews to generate personalized coaching
               signals and trends.
@@ -55,8 +55,8 @@ export default function InsightsPage() {
   if (error) {
     return (
       <main className="min-h-screen bg-[#030711] text-white">
-        <div className="mx-auto max-w-4xl px-6 py-12">
-          <div className="rounded-3xl border border-rose-400/20 bg-rose-500/10 p-8">
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+          <div className="rounded-3xl border border-rose-400/20 bg-rose-500/10 p-5 sm:p-8">
             <h1 className="text-2xl font-semibold text-rose-200">
               We couldn&apos;t load your performance insights
             </h1>
@@ -70,9 +70,9 @@ export default function InsightsPage() {
   if (interviews.length === 0) {
     return (
       <main className="min-h-screen bg-[#030711] text-white">
-        <div className="mx-auto max-w-4xl px-6 py-12">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
-            <h1 className="text-3xl font-bold">No insights yet</h1>
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-center sm:p-8">
+            <h1 className="text-2xl font-bold sm:text-3xl">No insights yet</h1>
             <p className="mt-3 text-white/60">
               Finish at least one interview and we&apos;ll generate a coaching
               view from your real performance.
@@ -126,12 +126,12 @@ export default function InsightsPage() {
 
   return (
     <main className="min-h-screen bg-[#030711] text-white">
-      <div className="mx-auto max-w-7xl px-6 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <div className="mb-8">
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
             AI Insights
           </p>
-          <h1 className="mt-2 text-3xl font-bold md:text-4xl">
+          <h1 className="mt-2 text-2xl font-bold sm:text-3xl md:text-4xl">
             {user.displayName ? `${user.displayName}&apos;s Performance Intelligence` : "Performance Intelligence"}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-white/60">
@@ -144,10 +144,10 @@ export default function InsightsPage() {
           {stats.map((item) => (
             <div
               key={item.title}
-              className="rounded-2xl border border-white/10 bg-white/5 p-5"
+              className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5"
             >
               <p className="text-sm text-white/60">{item.title}</p>
-              <h2 className="mt-3 text-3xl font-semibold text-cyan-400">
+              <h2 className="mt-3 break-words text-2xl font-semibold text-cyan-400 sm:text-3xl">
                 {item.value}
               </h2>
               <p className="mt-2 text-sm text-white/50">{item.change}</p>
@@ -166,14 +166,14 @@ export default function InsightsPage() {
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 xl:col-span-2">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 xl:col-span-2">
             <h2 className="mb-4 text-xl font-semibold">Score Trend</h2>
 
-            <div className="h-75">
+            <div className="h-72 overflow-hidden sm:h-75">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={analytics.progressData}>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" />
-                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
+                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" tick={{ fontSize: 11 }} />
                   <YAxis stroke="rgba(255,255,255,0.5)" domain={[0, 100]} />
                   <Tooltip />
                   <Line
@@ -187,7 +187,7 @@ export default function InsightsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
             <h2 className="mb-4 text-xl font-semibold">Goal</h2>
 
             <p className="text-sm text-white/60">Target Score</p>
@@ -210,7 +210,7 @@ export default function InsightsPage() {
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
             <h2 className="mb-4 text-xl font-semibold">Focus Areas</h2>
 
             <ul className="space-y-3 text-sm text-white/80">
@@ -220,7 +220,7 @@ export default function InsightsPage() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
             <h2 className="mb-4 text-xl font-semibold">Recommended Actions</h2>
 
             <ul className="space-y-3 text-sm text-white/80">

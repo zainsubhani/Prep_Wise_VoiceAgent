@@ -115,11 +115,11 @@ export default function AuthForm({ type }: Props) {
     <section className="relative w-full max-w-xl">
       <div className="absolute inset-0 rounded-4xl bg-cyan-400/10 blur-3xl" />
 
-      <div className="relative overflow-hidden rounded-4xl border border-white/10 bg-[#0a1022]/85 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a1022]/85 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur-xl sm:rounded-4xl">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,224,0.08),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(0,119,255,0.06),transparent_25%)]" />
 
-        <div className="relative border-b border-white/10 px-6 py-8 sm:px-10">
-          <div className="mb-8 flex items-center justify-center gap-3">
+        <div className="relative border-b border-white/10 px-5 py-7 sm:px-10 sm:py-8">
+          <div className="mb-8 flex flex-col items-center justify-center gap-3 text-center sm:flex-row sm:text-left">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-400/20 bg-white/5 shadow-[0_0_30px_rgba(0,255,224,0.08)]">
               <Image src="/logo.svg" alt="Logo" width={28} height={28} />
             </div>
@@ -128,7 +128,7 @@ export default function AuthForm({ type }: Props) {
               <p className="text-xs uppercase tracking-[0.28em] text-cyan-400">
               AXIS AI
               </p>
-              <h1 className="text-lg font-semibold text-white">
+              <h1 className="text-base font-semibold text-white sm:text-lg">
                 Interview Prep Platform
               </h1>
             </div>
@@ -139,7 +139,7 @@ export default function AuthForm({ type }: Props) {
               Secure Access
             </p>
 
-            <h2 className="text-4xl font-black leading-[0.95] tracking-tight text-white sm:text-5xl">
+            <h2 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl sm:leading-[0.95]">
               {isSignIn ? "Welcome Back" : "Create Account"}
             </h2>
 
@@ -151,7 +151,7 @@ export default function AuthForm({ type }: Props) {
           </div>
         </div>
 
-        <div className="relative px-6 py-8 sm:px-10">
+        <div className="relative px-5 py-7 sm:px-10 sm:py-8">
           <form
             id="auth-form"
             onSubmit={form.handleSubmit(onSubmit)}
@@ -201,7 +201,7 @@ export default function AuthForm({ type }: Props) {
 
           <div className="my-7 flex items-center gap-4">
             <div className="h-px flex-1 bg-white/10" />
-            <span className="text-[11px] uppercase tracking-[0.24em] text-white/35">
+            <span className="text-center text-[10px] uppercase tracking-[0.18em] text-white/35 sm:text-[11px] sm:tracking-[0.24em]">
               or continue with
             </span>
             <div className="h-px flex-1 bg-white/10" />

@@ -31,24 +31,24 @@ const steps = [
 
 export default function HowItWorksPage() {
   return (
-    <main className="min-h-screen bg-[#030711] flex justify-center items-center text-white">
-      <div className="mx-auto max-w-6xl px-6 py-16">
+    <main className="flex min-h-screen items-center justify-center bg-[#030711] text-white">
+      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
 
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
             How It Works
           </p>
-          <h1 className="mt-4 text-4xl font-bold md:text-5xl">
+          <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">
             Prepare smarter with AI-powered interviews
           </h1>
-          <p className="mt-4 text-white/60">
+          <p className="mt-4 text-sm leading-7 text-white/60 sm:text-base">
             Practice real interview scenarios, get instant feedback, and track your growth.
           </p>
         </div>
 
         {/* Steps */}
-<div className="mt-16 mb-16 grid gap-10 md:grid-cols-2">
+<div className="my-12 grid gap-10 sm:my-16 md:grid-cols-2">
               {steps.map((step, index) => (
             <div
               key={step.title}
@@ -69,7 +69,7 @@ export default function HowItWorksPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-125 text-center">
+        <div className="mt-12 text-center sm:mt-16">
           <h2 className="text-2xl font-semibold">
             Ready to improve your interview skills?
           </h2>

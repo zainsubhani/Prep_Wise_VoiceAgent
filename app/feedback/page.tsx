@@ -48,7 +48,7 @@ export default function FeedbackPage() {
   if (authLoading || loading) {
     return (
       <main className="min-h-screen bg-[#030711] text-white">
-        <div className="mx-auto max-w-7xl px-6 py-12">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
             Loading feedback...
           </p>
@@ -60,9 +60,9 @@ export default function FeedbackPage() {
   if (!user) {
     return (
       <main className="min-h-screen bg-[#030711] text-white">
-        <div className="mx-auto max-w-4xl px-6 py-12">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
-            <h1 className="text-3xl font-bold">Sign in to view your feedback</h1>
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-center sm:p-8">
+            <h1 className="text-2xl font-bold sm:text-3xl">Sign in to view your feedback</h1>
             <p className="mt-3 text-white/60">
               Your feedback dashboard is personalized to your own interview
               history and performance.
@@ -82,8 +82,8 @@ export default function FeedbackPage() {
   if (error) {
     return (
       <main className="min-h-screen bg-[#030711] text-white">
-        <div className="mx-auto max-w-4xl px-6 py-12">
-          <div className="rounded-3xl border border-rose-400/20 bg-rose-500/10 p-8">
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+          <div className="rounded-3xl border border-rose-400/20 bg-rose-500/10 p-5 sm:p-8">
             <h1 className="text-2xl font-semibold text-rose-200">
               We couldn&apos;t load your interview data
             </h1>
@@ -97,12 +97,12 @@ export default function FeedbackPage() {
   if (interviews.length === 0) {
     return (
       <main className="min-h-screen bg-[#030711] text-white">
-        <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
           <div className="mb-8">
             <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
               Performance Insights
             </p>
-            <h1 className="mt-2 text-3xl font-bold md:text-4xl">
+            <h1 className="mt-2 text-2xl font-bold sm:text-3xl md:text-4xl">
               Feedback Dashboard
             </h1>
           </div>
@@ -138,12 +138,12 @@ export default function FeedbackPage() {
 
   return (
     <main className="min-h-screen bg-[#030711] text-white">
-      <div className="mx-auto max-w-7xl px-6 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <div className="mb-8">
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
             Performance Insights
           </p>
-          <h1 className="mt-2 text-3xl font-bold md:text-4xl">
+          <h1 className="mt-2 text-2xl font-bold sm:text-3xl md:text-4xl">
             {user.displayName ? `${user.displayName}&apos;s Feedback Dashboard` : "Feedback Dashboard"}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-white/60 md:text-base">
@@ -156,10 +156,10 @@ export default function FeedbackPage() {
           {stats.map((item) => (
             <div
               key={item.title}
-              className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm"
+            className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm"
             >
               <p className="text-sm text-white/60">{item.title}</p>
-              <h2 className="mt-3 text-3xl font-semibold text-cyan-400">
+              <h2 className="mt-3 break-words text-2xl font-semibold text-cyan-400 sm:text-3xl">
                 {item.value}
               </h2>
               <p className="mt-2 text-sm text-white/50">{item.subtext}</p>
@@ -168,7 +168,7 @@ export default function FeedbackPage() {
         </div>
 
         <div className="mt-8 grid gap-6 xl:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 xl:col-span-2">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 xl:col-span-2">
             <div className="mb-5">
               <h2 className="text-xl font-semibold">Score Progress</h2>
               <p className="text-sm text-white/50">
@@ -176,11 +176,11 @@ export default function FeedbackPage() {
               </p>
             </div>
 
-            <div className="h-80 w-full">
+            <div className="h-72 w-full overflow-hidden sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={analytics.progressData}>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" strokeDasharray="3 3" />
-                  <XAxis dataKey="interview" stroke="rgba(255,255,255,0.5)" />
+                  <XAxis dataKey="interview" stroke="rgba(255,255,255,0.5)" tick={{ fontSize: 11 }} />
                   <YAxis stroke="rgba(255,255,255,0.5)" domain={[0, 100]} />
                   <Tooltip
                     contentStyle={{
@@ -203,7 +203,7 @@ export default function FeedbackPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
             <div className="mb-5">
               <h2 className="text-xl font-semibold">Skill Breakdown</h2>
               <p className="text-sm text-white/50">
@@ -211,11 +211,11 @@ export default function FeedbackPage() {
               </p>
             </div>
 
-            <div className="h-80 w-full">
+            <div className="h-72 w-full overflow-hidden sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={analytics.skillData}>
                   <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                  <PolarAngleAxis dataKey="skill" stroke="rgba(255,255,255,0.6)" />
+                  <PolarAngleAxis dataKey="skill" stroke="rgba(255,255,255,0.6)" tick={{ fontSize: 10 }} />
                   <PolarRadiusAxis stroke="rgba(255,255,255,0.2)" domain={[0, 100]} />
                   <Radar
                     name="Skills"
@@ -231,7 +231,7 @@ export default function FeedbackPage() {
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 xl:col-span-1">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 xl:col-span-1">
             <div className="mb-5">
               <h2 className="text-xl font-semibold">Interview Type Scores</h2>
               <p className="text-sm text-white/50">
@@ -239,11 +239,11 @@ export default function FeedbackPage() {
               </p>
             </div>
 
-            <div className="h-75 w-full">
+            <div className="h-72 w-full overflow-hidden sm:h-75">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={analytics.categoryData}>
                   <CartesianGrid stroke="rgba(255,255,255,0.08)" strokeDasharray="3 3" />
-                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
+                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" tick={{ fontSize: 11 }} />
                   <YAxis stroke="rgba(255,255,255,0.5)" domain={[0, 100]} />
                   <Tooltip
                     contentStyle={{
@@ -259,7 +259,7 @@ export default function FeedbackPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 xl:col-span-2">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 xl:col-span-2">
             <div className="mb-5">
               <h2 className="text-xl font-semibold">Recent Feedback</h2>
               <p className="text-sm text-white/50">
@@ -275,7 +275,7 @@ export default function FeedbackPage() {
                   className="block rounded-2xl border border-white/10 bg-[#081120] p-5 transition hover:border-cyan-400/30"
                 >
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div>
+                    <div className="min-w-0">
                       <h3 className="text-lg font-semibold">
                         {item.role} · {item.company}
                       </h3>
@@ -284,7 +284,7 @@ export default function FeedbackPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-cyan-300">
+                    <div className="w-fit rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-cyan-300">
                       Score: <span className="font-semibold">{item.score}%</span>
                     </div>
                   </div>

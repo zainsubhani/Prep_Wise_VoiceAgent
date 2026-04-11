@@ -15,11 +15,11 @@ const steps = [
 
 export default function FeaturesSteps() {
   return (
-    <section className="px-4 py-24 sm:px-6 lg:px-8">
+    <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-6xl text-center">
-        <h2 className="text-4xl font-black">How It Works</h2>
+        <h2 className="text-3xl font-black sm:text-4xl">How It Works</h2>
 
-        <div className="mt-16 grid gap-10 md:grid-cols-3">
+        <div className="mt-10 grid gap-10 sm:mt-16 md:grid-cols-3">
           {steps.map((step, i) => (
             <div key={i} className="text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-cyan-400 text-black font-bold">

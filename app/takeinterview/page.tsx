@@ -126,7 +126,7 @@ export default function TakeInterviewPage() {
     {
       label: "Interview Mode",
       value: interviewType,
-      icon: Sparkles,
+      icon: WandSparkles,
     },
     {
       label: "Time Window",
@@ -524,7 +524,7 @@ export default function TakeInterviewPage() {
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.12),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(202,197,254,0.12),transparent_22%)]" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[72px_72px] opacity-20" />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-2 rounded-sm border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-cyan-300">
@@ -549,10 +549,10 @@ export default function TakeInterviewPage() {
             </span>
           </div>
 
-          <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">
+          <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
             Take Interview
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-white/60">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
             Configure your session on the left and monitor the live interview on
             the right. The layout follows the same dark and cyan visual system
             already used across your project.
@@ -561,13 +561,13 @@ export default function TakeInterviewPage() {
 
         <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
           <section className="space-y-6">
-            <div className="rounded-3xl border border-white/10 bg-[#0a1022]/90 p-6 backdrop-blur-xl">
+            <div className="rounded-3xl border border-white/10 bg-[#0a1022]/90 p-5 backdrop-blur-xl sm:p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm uppercase tracking-[0.24em] text-cyan-400">
                     Interview Setup
                   </p>
-                  <h2 className="mt-3 text-3xl font-black text-white">
+                  <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
                     Session Control
                   </h2>
                 </div>
@@ -624,7 +624,7 @@ export default function TakeInterviewPage() {
                   <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-white/45">
                     Difficulty
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-3">
                     {DIFFICULTY_LEVELS.map((item) => (
                       <button
                         key={item}
@@ -649,7 +649,7 @@ export default function TakeInterviewPage() {
                   <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-white/45">
                     Duration
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2 min-[380px]:grid-cols-3">
                     {DURATION_OPTIONS.map((item) => (
                       <button
                         key={item}
@@ -681,7 +681,7 @@ export default function TakeInterviewPage() {
                     {loading ? "Starting Session..." : "Start Interview"}
                   </button>
                 ) : (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <button
                       onClick={toggleMute}
                       disabled={isAnalyzing}
@@ -714,7 +714,7 @@ export default function TakeInterviewPage() {
               )}
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-[#0a1022]/90 p-6 backdrop-blur-xl">
+            <div className="rounded-3xl border border-white/10 bg-[#0a1022]/90 p-5 backdrop-blur-xl sm:p-6">
               <p className="text-sm uppercase tracking-[0.24em] text-cyan-400">
                 Session Summary
               </p>
@@ -727,15 +727,15 @@ export default function TakeInterviewPage() {
                       key={item.label}
                       className="rounded-2xl border border-white/10 bg-[#081120] p-4"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
                           <Icon className="h-4 w-4" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-xs uppercase tracking-[0.18em] text-white/40">
                             {item.label}
                           </p>
-                          <p className="mt-1 text-sm font-semibold text-white">
+                          <p className="mt-1 break-words text-sm font-semibold text-white">
                             {item.value}
                           </p>
                         </div>
@@ -748,13 +748,13 @@ export default function TakeInterviewPage() {
           </section>
 
           <section className="space-y-6">
-            <div className="rounded-3xl border border-white/10 bg-[#0a1022]/90 p-6 backdrop-blur-xl">
+            <div className="rounded-3xl border border-white/10 bg-[#0a1022]/90 p-5 backdrop-blur-xl sm:p-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="text-sm uppercase tracking-[0.24em] text-cyan-400">
                     Live Monitor
                   </p>
-                  <h2 className="mt-3 text-3xl font-black text-white">
+                  <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
                     Interview Status
                   </h2>
                 </div>
@@ -779,7 +779,7 @@ export default function TakeInterviewPage() {
                   <p className="text-xs uppercase tracking-[0.18em] text-white/40">
                     Current Status
                   </p>
-                  <p className="mt-3 text-xl font-semibold text-white">
+                  <p className="mt-3 break-words text-lg font-semibold text-white sm:text-xl">
                     {status}
                   </p>
                 </div>
@@ -787,7 +787,7 @@ export default function TakeInterviewPage() {
                   <p className="text-xs uppercase tracking-[0.18em] text-white/40">
                     Time Left
                   </p>
-                  <p className="mt-3 text-xl font-semibold text-white">
+                  <p className="mt-3 text-lg font-semibold text-white sm:text-xl">
                     {formattedTime}
                   </p>
                 </div>
@@ -795,14 +795,14 @@ export default function TakeInterviewPage() {
                   <p className="text-xs uppercase tracking-[0.18em] text-white/40">
                     Assistant
                   </p>
-                  <p className="mt-3 text-xl font-semibold text-white">
+                  <p className="mt-3 text-lg font-semibold text-white sm:text-xl">
                     {isAssistantSpeaking ? "Speaking" : "Listening"}
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 rounded-2xl border border-white/10 bg-[#081120] p-5">
-                <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
                       <Volume2 className="h-4 w-4" />
@@ -835,13 +835,13 @@ export default function TakeInterviewPage() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-[#0a1022]/90 p-6 backdrop-blur-xl">
+            <div className="rounded-3xl border border-white/10 bg-[#0a1022]/90 p-5 backdrop-blur-xl sm:p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm uppercase tracking-[0.24em] text-cyan-400">
                     Live Transcript
                   </p>
-                  <h2 className="mt-3 text-3xl font-black text-white">
+                  <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
                     Conversation Stream
                   </h2>
                 </div>
@@ -850,7 +850,7 @@ export default function TakeInterviewPage() {
                 </div>
               </div>
 
-              <div className="mt-6 h-[34rem] overflow-y-auto pr-1">
+              <div className="mt-6 h-[28rem] overflow-y-auto pr-1 sm:h-[34rem]">
                 {transcriptItems.length === 0 ? (
                   <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#081120] p-8 text-center">
                     <div className="max-w-md">
@@ -872,7 +872,7 @@ export default function TakeInterviewPage() {
                       <div
                         key={item.id}
                         className={cn(
-                          "max-w-[90%] rounded-2xl border px-4 py-4",
+                          "max-w-full rounded-2xl border px-4 py-4 sm:max-w-[90%]",
                           item.role === "assistant"
                             ? "border-cyan-400/20 bg-cyan-400/10"
                             : "ml-auto border-white/10 bg-white/5"

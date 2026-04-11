@@ -11,7 +11,7 @@ export default function InterviewsPage() {
 
   if (authLoading || loading) {
     return (
-      <main className="min-h-screen bg-[#030711] text-white p-6">
+      <main className="min-h-screen bg-[#030711] p-4 text-white sm:p-6">
         <p>Loading interviews...</p>
       </main>
     );
@@ -19,9 +19,9 @@ export default function InterviewsPage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#030711] p-6 text-white">
-        <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-          <h1 className="text-3xl font-bold">Sign in to view your interviews</h1>
+      <main className="min-h-screen bg-[#030711] p-4 text-white sm:p-6">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-5 text-center sm:p-8">
+          <h1 className="text-2xl font-bold sm:text-3xl">Sign in to view your interviews</h1>
           <p className="mt-3 text-white/60">
             Your interview history is private and only available in your account.
           </p>
@@ -37,9 +37,9 @@ export default function InterviewsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#030711] text-white p-6">
+    <main className="min-h-screen bg-[#030711] p-4 text-white sm:p-6">
       <div className="mx-auto max-w-6xl">
-        <h1 className="text-3xl font-bold mb-6">Your Interviews</h1>
+        <h1 className="mb-6 text-2xl font-bold sm:text-3xl">Your Interviews</h1>
 
         {error && (
           <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-500/10 p-4 text-sm text-rose-100/80">
@@ -48,7 +48,7 @@ export default function InterviewsPage() {
         )}
 
         {interviews.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-center sm:p-8">
             <h2 className="text-xl font-semibold mb-2">No interviews found</h2>
             <p className="text-white/60">
               You have not taken any interviews yet.
@@ -59,7 +59,7 @@ export default function InterviewsPage() {
             {interviews.map((interview) => (
               <div
                 key={interview.id}
-                className="rounded-2xl border border-cyan-400/10 bg-white/5 p-5 shadow-lg backdrop-blur"
+                className="min-w-0 rounded-2xl border border-cyan-400/10 bg-white/5 p-5 shadow-lg backdrop-blur"
               >
                 <div className="mb-4">
                   <h2 className="text-xl font-semibold">{interview.role}</h2>

@@ -13,7 +13,7 @@ export default function FeedbackDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <main className="min-h-screen bg-[#030711] p-6 text-white">
+      <main className="min-h-screen bg-[#030711] p-4 text-white sm:p-6">
         <p>Loading interview feedback...</p>
       </main>
     );
@@ -21,9 +21,9 @@ export default function FeedbackDetailPage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#030711] p-6 text-white">
-        <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-          <h1 className="text-3xl font-bold">Sign in to view this feedback</h1>
+      <main className="min-h-screen bg-[#030711] p-4 text-white sm:p-6">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-5 text-center sm:p-8">
+          <h1 className="text-2xl font-bold sm:text-3xl">Sign in to view this feedback</h1>
           <p className="mt-3 text-white/60">
             Detailed interview reports are private to your account.
           </p>
@@ -40,8 +40,8 @@ export default function FeedbackDetailPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#030711] p-6 text-white">
-        <div className="mx-auto max-w-4xl rounded-2xl border border-rose-400/20 bg-rose-500/10 p-8">
+      <main className="min-h-screen bg-[#030711] p-4 text-white sm:p-6">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-rose-400/20 bg-rose-500/10 p-5 sm:p-8">
           <h1 className="text-2xl font-semibold text-rose-200">
             We couldn&apos;t load this interview feedback
           </h1>
@@ -53,9 +53,9 @@ export default function FeedbackDetailPage() {
 
   if (!interview) {
     return (
-      <main className="min-h-screen bg-[#030711] p-6 text-white">
-        <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-          <h1 className="text-3xl font-bold">Interview not found</h1>
+      <main className="min-h-screen bg-[#030711] p-4 text-white sm:p-6">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-5 text-center sm:p-8">
+          <h1 className="text-2xl font-bold sm:text-3xl">Interview not found</h1>
           <p className="mt-3 text-white/60">
             This feedback either does not exist or does not belong to your
             account.
@@ -82,17 +82,17 @@ export default function FeedbackDetailPage() {
 
   return (
     <main className="min-h-screen bg-[#030711] text-white">
-      <div className="mx-auto max-w-6xl px-6 py-8">
-        <h1 className="text-3xl font-bold">Interview Feedback</h1>
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <h1 className="text-2xl font-bold sm:text-3xl">Interview Feedback</h1>
         <p className="mt-2 text-white/60">
           {interview.role} · {interview.interviewType} · {interview.difficulty}
         </p>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {scoreCards.map(([label, value]) => (
             <div
               key={label}
-              className="rounded-2xl border border-white/10 bg-white/5 p-5"
+              className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5"
             >
               <p className="text-sm text-white/50">{label}</p>
               <h2 className="mt-2 text-3xl font-semibold text-cyan-400">

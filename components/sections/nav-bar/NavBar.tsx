@@ -36,21 +36,21 @@ export default function Navbar() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[72px_72px] opacity-20" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_left,rgba(0,255,224,0.06),transparent_25%),radial-gradient(circle_at_right,rgba(0,180,255,0.06),transparent_25%)]" />
 
-        <nav className="relative mx-auto flex h-24 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <nav className="relative mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 md:min-h-24 lg:px-8">
           <Link
             href="/"
-            className="flex items-center text-3xl font-black tracking-tight"
+            className="flex min-w-0 shrink items-center text-2xl font-black tracking-tight sm:text-3xl"
           >
             <span className="text-cyan-400">{publicNavbarContent.logo.primary}</span>
             <span className="text-white">{publicNavbarContent.logo.secondary}</span>
           </Link>
 
-          <div className="hidden items-center gap-10 md:flex">
+          <div className="hidden min-w-0 items-center gap-5 lg:gap-10 md:flex">
             {navItems.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className={`text-sm uppercase tracking-[0.22em] transition ${
+                className={`text-xs uppercase tracking-[0.16em] transition lg:text-sm lg:tracking-[0.22em] ${
                   isActive(link.href)
                     ? "text-cyan-400"
                     : "text-white/55 hover:text-cyan-400"
@@ -61,19 +61,19 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden shrink-0 items-center gap-2 lg:gap-3 md:flex">
             {!loading && !user && (
               <>
                 <Link
                   href="/sign-in"
-                  className="rounded-sm border border-white/10 px-6 py-3 text-sm uppercase tracking-[0.18em] text-white transition hover:border-cyan-400 hover:text-cyan-400"
+                  className="rounded-sm border border-white/10 px-4 py-3 text-xs uppercase tracking-[0.14em] text-white transition hover:border-cyan-400 hover:text-cyan-400 lg:px-6 lg:text-sm lg:tracking-[0.18em]"
                 >
                   Login
                 </Link>
 
                 <Link
                   href="/sign-up"
-                  className="rounded-sm bg-cyan-400 px-8 py-4 text-sm uppercase tracking-[0.18em] text-black transition hover:bg-cyan-300"
+                  className="rounded-sm bg-cyan-400 px-5 py-3 text-xs uppercase tracking-[0.14em] text-black transition hover:bg-cyan-300 lg:px-8 lg:py-4 lg:text-sm lg:tracking-[0.18em]"
                 >
                   Sign Up
                 </Link>
@@ -84,7 +84,7 @@ export default function Navbar() {
               <>
                 <Link
                   href="/takeinterview"
-                  className="rounded-sm border border-white/10 px-6 py-3 text-sm uppercase tracking-[0.18em] text-white transition hover:border-cyan-400 hover:text-cyan-400"
+                  className="rounded-sm border border-white/10 px-4 py-3 text-xs uppercase tracking-[0.14em] text-white transition hover:border-cyan-400 hover:text-cyan-400 lg:px-6 lg:text-sm lg:tracking-[0.18em]"
                 >
                   Take Interview
                 </Link>
@@ -92,7 +92,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="rounded-sm bg-cyan-400 px-8 py-4 text-sm uppercase tracking-[0.18em] text-black transition hover:bg-cyan-300"
+                  className="rounded-sm bg-cyan-400 px-5 py-3 text-xs uppercase tracking-[0.14em] text-black transition hover:bg-cyan-300 lg:px-8 lg:py-4 lg:text-sm lg:tracking-[0.18em]"
                 >
                   Logout
                 </button>
@@ -123,7 +123,7 @@ export default function Navbar() {
         </nav>
 
         {open && (
-          <div className="relative border-t border-white/10 bg-[#050816] px-4 py-6 md:hidden">
+          <div className="relative border-t border-white/10 bg-[#050816] px-4 py-6 sm:px-6 md:hidden">
             <div className="flex flex-col gap-5">
               {navItems.map((link) => (
                 <Link
@@ -142,7 +142,7 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/sign-in"
-                    className="mt-2 inline-flex w-fit rounded-sm border border-white/10 px-6 py-3 text-sm uppercase tracking-[0.18em] text-white"
+                    className="mt-2 inline-flex w-full justify-center rounded-sm border border-white/10 px-6 py-3 text-sm uppercase tracking-[0.18em] text-white sm:w-fit"
                     onClick={() => setOpen(false)}
                   >
                     Login
@@ -150,7 +150,7 @@ export default function Navbar() {
 
                   <Link
                     href="/sign-up"
-                    className="inline-flex w-fit rounded-sm bg-cyan-400 px-6 py-3 text-sm uppercase tracking-[0.18em] text-black"
+                    className="inline-flex w-full justify-center rounded-sm bg-cyan-400 px-6 py-3 text-sm uppercase tracking-[0.18em] text-black sm:w-fit"
                     onClick={() => setOpen(false)}
                   >
                     Sign Up
@@ -162,7 +162,7 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/dashboard"
-                    className="mt-2 inline-flex w-fit rounded-sm border border-white/10 px-6 py-3 text-sm uppercase tracking-[0.18em] text-white"
+                    className="mt-2 inline-flex w-full justify-center rounded-sm border border-white/10 px-6 py-3 text-sm uppercase tracking-[0.18em] text-white sm:w-fit"
                     onClick={() => setOpen(false)}
                   >
                     Dashboard
@@ -171,7 +171,7 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="inline-flex w-fit rounded-sm bg-cyan-400 px-6 py-3 text-sm uppercase tracking-[0.18em] text-black"
+                    className="inline-flex w-full justify-center rounded-sm bg-cyan-400 px-6 py-3 text-sm uppercase tracking-[0.18em] text-black sm:w-fit"
                   >
                     Logout
                   </button>
