@@ -144,7 +144,7 @@ export default function FeedbackPage() {
             Performance Insights
           </p>
           <h1 className="mt-2 text-2xl font-bold sm:text-3xl md:text-4xl">
-            {user.displayName ? `${user.displayName}&apos;s Feedback Dashboard` : "Feedback Dashboard"}
+            {user.displayName ? `${user.displayName}'s Feedback Dashboard` : "Feedback Dashboard"}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-white/60 md:text-base">
             Real interview scores, actual strengths, and improvement areas based

@@ -132,7 +132,7 @@ export default function InsightsPage() {
             AI Insights
           </p>
           <h1 className="mt-2 text-2xl font-bold sm:text-3xl md:text-4xl">
-            {user.displayName ? `${user.displayName}&apos;s Performance Intelligence` : "Performance Intelligence"}
+            {user.displayName ? `${user.displayName}'s Performance Intelligence` : "Performance Intelligence"}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-white/60">
             Understand where your real interview results are trending and what
@@ -147,7 +147,7 @@ export default function InsightsPage() {
               className="min-w-0 rounded-2xl border border-white/10 bg-white/5 p-5"
             >
               <p className="text-sm text-white/60">{item.title}</p>
-              <h2 className="mt-3 break-words text-2xl font-semibold text-cyan-400 sm:text-3xl">
+              <h2 className="mt-3 wrap-break-word text-2xl font-semibold text-cyan-400 sm:text-3xl">
                 {item.value}
               </h2>
               <p className="mt-2 text-sm text-white/50">{item.change}</p>

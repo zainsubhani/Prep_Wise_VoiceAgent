@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Vapi from "@vapi-ai/web";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { auth } from "@/lib/firebase";
 import { LiveInterviewWindowState } from "@/types/live-interview-window";
 import {
   BriefcaseBusiness,
@@ -45,8 +46,70 @@ type AnalyzeResponse = {
   interviewId?: string;
 };
 
+type PublishLiveWindowState = (
+  overrides?: Partial<LiveInterviewWindowState>
+) => void;
+
+type LiveWindowCommand = {
+  type: "end-session";
+};
+
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function getRecordValue(
+  record: Record<string, unknown> | null,
+  key: string
+) {
+  const value = record?.[key];
+  return isRecord(value) ? value : null;
+}
+
+function getVapiErrorMessage(event: unknown) {
+  if (!isRecord(event)) return null;
+
+  const error = getRecordValue(event, "error");
+  const nestedError = getRecordValue(error, "error");
+  const message = getRecordValue(error, "message");
+
+  const candidates = [
+    error?.errorMsg,
+    error?.msg,
+    nestedError?.msg,
+    message?.msg,
+  ];
+
+  const messageText = candidates.find((candidate) => typeof candidate === "string");
+  return typeof messageText === "string" ? messageText : null;
+}
+
+function isExpectedVapiEndError(event: unknown) {
+  if (!isRecord(event) || event.type !== "daily-error") return false;
+
+  const error = getRecordValue(event, "error");
+  const nestedError = getRecordValue(error, "error");
+  const message = getRecordValue(error, "message");
+  const detailType = nestedError?.type ?? message?.type ?? error?.type;
+  const errorMessage = getVapiErrorMessage(event);
+
+  return detailType === "ejected" && errorMessage === "Meeting has ended";
+}
+
+function isExpectedDailyEjectionMessage(message: unknown) {
+  return (
+    typeof message === "string" &&
+    message.includes("Meeting ended due to ejection") &&
+    message.includes("Meeting has ended")
+  );
+}
+
+function isLiveWindowCommand(message: unknown): message is LiveWindowCommand {
+  return isRecord(message) && message.type === "end-session";
 }
 
 export default function TakeInterviewPage() {
@@ -58,6 +121,11 @@ export default function TakeInterviewPage() {
   const liveChannelRef = useRef<BroadcastChannel | null>(null);
   const hasAnalyzedRef = useRef(false);
   const transcriptItemsRef = useRef<TranscriptItem[]>([]);
+  const userRef = useRef(user);
+  const endInterviewRef = useRef<(() => Promise<void>) | null>(null);
+  const analyzeAndSaveRef = useRef<(() => Promise<void>) | null>(null);
+  const publishLiveWindowStateRef = useRef<PublishLiveWindowState | null>(null);
+  const closeLiveWindowRef = useRef<(() => void) | null>(null);
 
   const [isOnline, setIsOnline] = useState(true);
   const [role, setRole] = useState<RoleOption>("Frontend Developer");
@@ -82,6 +150,35 @@ export default function TakeInterviewPage() {
   useEffect(() => {
     transcriptItemsRef.current = transcriptItems;
   }, [transcriptItems]);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  useEffect(() => {
+    const handleWindowError = (event: ErrorEvent) => {
+      if (isExpectedDailyEjectionMessage(event.message)) {
+        event.preventDefault();
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const message =
+        event.reason instanceof Error ? event.reason.message : event.reason;
+
+      if (isExpectedDailyEjectionMessage(message)) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("error", handleWindowError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener("error", handleWindowError);
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    };
+  }, []);
 
   useEffect(() => {
     const updateOnlineStatus = () => setIsOnline(navigator.onLine);
@@ -187,11 +284,19 @@ export default function TakeInterviewPage() {
     ]
   );
 
+  useEffect(() => {
+    publishLiveWindowStateRef.current = publishLiveWindowState;
+  }, [publishLiveWindowState]);
+
   const closeLiveWindow = useCallback(() => {
-    publishLiveWindowState({ isOpen: false });
+    publishLiveWindowStateRef.current?.({ isOpen: false });
     liveWindowRef.current?.close();
     liveWindowRef.current = null;
-  }, [publishLiveWindowState]);
+  }, []);
+
+  useEffect(() => {
+    closeLiveWindowRef.current = closeLiveWindow;
+  }, [closeLiveWindow]);
 
   const openLiveWindow = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -219,13 +324,19 @@ export default function TakeInterviewPage() {
     popup.focus();
 
     window.setTimeout(() => {
-      publishLiveWindowState({ isOpen: true });
+      publishLiveWindowStateRef.current?.({ isOpen: true });
     }, 250);
-  }, [publishLiveWindowState]);
+  }, []);
 
   useEffect(() => {
     const channel = new BroadcastChannel(LIVE_WINDOW_CHANNEL);
     liveChannelRef.current = channel;
+
+    channel.onmessage = (event: MessageEvent<unknown>) => {
+      if (isLiveWindowCommand(event.data)) {
+        void endInterviewRef.current?.();
+      }
+    };
 
     return () => {
       channel.close();
@@ -266,6 +377,10 @@ export default function TakeInterviewPage() {
   }, [closeLiveWindow]);
 
   useEffect(() => {
+    endInterviewRef.current = () => endInterview(false);
+  }, [endInterview]);
+
+  useEffect(() => {
     if (!isInterviewStarted || isInterviewEnded) return;
 
     const timer = setInterval(() => {
@@ -299,8 +414,15 @@ export default function TakeInterviewPage() {
         throw new Error("No transcript available for analysis.");
       }
 
+      const currentUser = userRef.current ?? auth.currentUser;
+      const userId = currentUser?.uid;
+
+      if (!userId) {
+        throw new Error("Sign in is required before saving interview feedback.");
+      }
+
       const payload = {
-        userId: user?.uid,
+        userId,
         role,
         company: "",
         interviewType,
@@ -350,7 +472,11 @@ export default function TakeInterviewPage() {
     } finally {
       setIsAnalyzing(false);
     }
-  }, [difficulty, duration, interviewType, role, router, user]);
+  }, [difficulty, duration, interviewType, role, router]);
+
+  useEffect(() => {
+    analyzeAndSaveRef.current = analyzeAndSave;
+  }, [analyzeAndSave]);
 
   useEffect(() => {
     const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
@@ -358,6 +484,25 @@ export default function TakeInterviewPage() {
 
     const vapi = new Vapi(publicKey);
     vapiRef.current = vapi;
+
+    const finishInterview = () => {
+      setStatus("Session finished");
+      setIsInterviewStarted(false);
+      setIsInterviewEnded(true);
+      setIsAssistantSpeaking(false);
+      closeLiveWindowRef.current?.();
+
+      if (!hasAnalyzedRef.current) {
+        hasAnalyzedRef.current = true;
+
+        if (transcriptItemsRef.current.length > 0) {
+          void analyzeAndSaveRef.current?.();
+        } else {
+          setError("Interview ended before any transcript was captured.");
+          setStatus("No transcript available");
+        }
+      }
+    };
 
     vapi.on("call-start", () => {
       setStatus("Interview live");
@@ -367,22 +512,7 @@ export default function TakeInterviewPage() {
     });
 
     vapi.on("call-end", () => {
-      setStatus("Session finished");
-      setIsInterviewStarted(false);
-      setIsInterviewEnded(true);
-      setIsAssistantSpeaking(false);
-      closeLiveWindow();
-
-      if (!hasAnalyzedRef.current) {
-        hasAnalyzedRef.current = true;
-
-        if (transcriptItemsRef.current.length > 0) {
-          void analyzeAndSave();
-        } else {
-          setError("Interview ended before any transcript was captured.");
-          setStatus("No transcript available");
-        }
-      }
+      finishInterview();
     });
 
     vapi.on("speech-start", () => {
@@ -411,22 +541,27 @@ export default function TakeInterviewPage() {
     });
 
     vapi.on("error", (e: unknown) => {
+      if (isExpectedVapiEndError(e)) {
+        if (!hasAnalyzedRef.current) {
+          finishInterview();
+        } else {
+          setIsInterviewStarted(false);
+          setIsAssistantSpeaking(false);
+          closeLiveWindowRef.current?.();
+        }
+        return;
+      }
+
       console.error("Vapi error:", e);
 
       const errorMessage =
-        typeof e === "object" &&
-        e !== null &&
-        "error" in e &&
-        typeof (e as { error?: { errorMsg?: string } }).error?.errorMsg ===
-          "string"
-          ? (e as { error?: { errorMsg?: string } }).error!.errorMsg!
-          : "Voice session failed. Please try again.";
+        getVapiErrorMessage(e) || "Voice session failed. Please try again.";
 
       setError(errorMessage);
       setStatus("Connection issue");
       setIsInterviewStarted(false);
       setIsAssistantSpeaking(false);
-      closeLiveWindow();
+      closeLiveWindowRef.current?.();
     });
 
     return () => {
@@ -436,7 +571,7 @@ export default function TakeInterviewPage() {
 
       vapiRef.current = null;
     };
-  }, [analyzeAndSave, closeLiveWindow, difficulty, duration, interviewType, role, router]);
+  }, []);
 
   const ensureMicrophoneAccess = async () => {
     try {
@@ -701,7 +836,7 @@ export default function TakeInterviewPage() {
               </div>
 
               {liveWindowBlocked && (
-                <div className="mt-4 rounded-2xl border border-[#cac5fe]/20 bg-[#cac5fe]/10 p-4 text-sm text-[#dddfff]">
+                <div className="mt-4 rounded-2xl border border-primary-200/20 bg-primary-200/10 p-4 text-sm text-primary-100">
                   Popup access is blocked. Allow popups if you want the live
                   interview window to open.
                 </div>
@@ -735,7 +870,7 @@ export default function TakeInterviewPage() {
                           <p className="text-xs uppercase tracking-[0.18em] text-white/40">
                             {item.label}
                           </p>
-                          <p className="mt-1 break-words text-sm font-semibold text-white">
+                          <p className="mt-1 wrap-break-word text-sm font-semibold text-white">
                             {item.value}
                           </p>
                         </div>
@@ -779,7 +914,7 @@ export default function TakeInterviewPage() {
                   <p className="text-xs uppercase tracking-[0.18em] text-white/40">
                     Current Status
                   </p>
-                  <p className="mt-3 break-words text-lg font-semibold text-white sm:text-xl">
+                  <p className="mt-3 wrap-break-word text-lg font-semibold text-white sm:text-xl">
                     {status}
                   </p>
                 </div>
@@ -850,7 +985,7 @@ export default function TakeInterviewPage() {
                 </div>
               </div>
 
-              <div className="mt-6 h-[28rem] overflow-y-auto pr-1 sm:h-[34rem]">
+              <div className="mt-6 h-112 overflow-y-auto pr-1 sm:h-136">
                 {transcriptItems.length === 0 ? (
                   <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#081120] p-8 text-center">
                     <div className="max-w-md">

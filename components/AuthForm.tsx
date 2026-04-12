@@ -121,7 +121,13 @@ export default function AuthForm({ type }: Props) {
         <div className="relative border-b border-white/10 px-5 py-7 sm:px-10 sm:py-8">
           <div className="mb-8 flex flex-col items-center justify-center gap-3 text-center sm:flex-row sm:text-left">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-400/20 bg-white/5 shadow-[0_0_30px_rgba(0,255,224,0.08)]">
-              <Image src="/logo.svg" alt="Logo" width={28} height={28} />
+              <Image
+                src="/logo.svg"
+                alt="Logo"
+                width={39}
+                height={34}
+                className="h-auto w-7"
+              />
             </div>
 
             <div>

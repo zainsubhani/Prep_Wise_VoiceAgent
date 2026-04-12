@@ -75,7 +75,7 @@ export default function DashboardPage() {
           </p>
           <h1 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
             {user?.displayName
-              ? `${user.displayName}&apos;s Interview Command Center`
+              ? `${user.displayName}'s Interview Command Center`
               : "Your Interview Command Center"}
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-white/55 sm:text-lg sm:leading-8">
@@ -94,7 +94,7 @@ export default function DashboardPage() {
                 {stat.label}
               </p>
 
-              <h2 className="mt-4 break-words text-3xl font-black text-cyan-400 sm:text-4xl">
+              <h2 className="mt-4 wrap-break-word text-3xl font-black text-cyan-400 sm:text-4xl">
                 {stat.value}
               </h2>
 

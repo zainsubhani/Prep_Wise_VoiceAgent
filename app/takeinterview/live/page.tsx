@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Clock3, Mic, MicOff, Radio, Sparkles, Volume2 } from "lucide-react";
 import { LiveInterviewWindowState } from "@/types/live-interview-window";
 
@@ -27,29 +27,42 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
+function isLiveWindowState(value: unknown): value is LiveInterviewWindowState {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "isOpen" in value &&
+    "transcriptItems" in value
+  );
+}
+
 export default function LiveInterviewWindowPage() {
-  const [session, setSession] = useState<LiveInterviewWindowState>(() => {
-    if (typeof window === "undefined") {
-      return initialState;
-    }
-
-    const storedState = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!storedState) {
-      return initialState;
-    }
-
-    try {
-      return JSON.parse(storedState) as LiveInterviewWindowState;
-    } catch {
-      return initialState;
-    }
-  });
+  const channelRef = useRef<BroadcastChannel | null>(null);
+  const [session, setSession] =
+    useState<LiveInterviewWindowState>(initialState);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const channel = new BroadcastChannel(CHANNEL_NAME);
+    const loadStoredState = window.setTimeout(() => {
+      const storedState = window.localStorage.getItem(STORAGE_KEY);
 
-    channel.onmessage = (event: MessageEvent<LiveInterviewWindowState>) => {
+      if (storedState) {
+        try {
+          setSession(JSON.parse(storedState) as LiveInterviewWindowState);
+        } catch {
+          setSession(initialState);
+        }
+      }
+
+      setIsHydrated(true);
+    }, 0);
+
+    const channel = new BroadcastChannel(CHANNEL_NAME);
+    channelRef.current = channel;
+
+    channel.onmessage = (event: MessageEvent<unknown>) => {
+      if (!isLiveWindowState(event.data)) return;
+
       setSession(event.data);
 
       if (!event.data.isOpen) {
@@ -58,9 +71,19 @@ export default function LiveInterviewWindowPage() {
     };
 
     return () => {
+      window.clearTimeout(loadStoredState);
       channel.close();
+      channelRef.current = null;
     };
   }, []);
+
+  const requestEndSession = () => {
+    setSession((currentSession) => ({
+      ...currentSession,
+      status: "Ending session",
+    }));
+    channelRef.current?.postMessage({ type: "end-session" });
+  };
 
   const latestMessages = useMemo(
     () => session.transcriptItems.slice(-6),
@@ -73,7 +96,7 @@ export default function LiveInterviewWindowPage() {
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[72px_72px] opacity-20" />
 
       <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-4 px-4 py-4 sm:gap-6 sm:px-5 sm:py-6">
-        <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,34,0.96),rgba(8,11,24,0.9))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:rounded-[30px] sm:p-6">
+        <section className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,34,0.96),rgba(8,11,24,0.9))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:rounded-[30px] sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
@@ -88,45 +111,90 @@ export default function LiveInterviewWindowPage() {
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[32rem]">
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.18em] text-white/40">
-                  Timer
-                </p>
-                <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
-                  <Clock3 className="h-4 w-4 text-cyan-300" />
-                  {session.formattedTime}
-                </p>
+            {isHydrated ? (
+              <div className="flex flex-col gap-3 lg:min-w-lg">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+                      Timer
+                    </p>
+                    <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
+                      <Clock3 className="h-4 w-4 text-cyan-300" />
+                      {session.formattedTime}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+                      Audio
+                    </p>
+                    <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
+                      {session.isMuted ? (
+                        <MicOff className="h-4 w-4 text-rose-300" />
+                      ) : (
+                        <Mic className="h-4 w-4 text-cyan-300" />
+                      )}
+                      {session.isMuted ? "Muted" : "Open"}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+                      Status
+                    </p>
+                    <p className="mt-2 wrap-break-word text-base font-semibold text-white sm:text-lg">
+                      {session.status}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={requestEndSession}
+                  disabled={!session.isOpen || session.status === "Ending session"}
+                  className="rounded-sm bg-cyan-400 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-black transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  End Session
+                </button>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.18em] text-white/40">
-                  Audio
-                </p>
-                <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
-                  {session.isMuted ? (
-                    <MicOff className="h-4 w-4 text-rose-300" />
-                  ) : (
-                    <Mic className="h-4 w-4 text-cyan-300" />
-                  )}
-                  {session.isMuted ? "Muted" : "Open"}
-                </p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-3 lg:min-w-lg">
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+                    Timer
+                  </p>
+                  <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
+                    <Clock3 className="h-4 w-4 text-cyan-300" />
+                    {session.formattedTime}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+                    Audio
+                  </p>
+                  <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
+                    {session.isMuted ? (
+                      <MicOff className="h-4 w-4 text-rose-300" />
+                    ) : (
+                      <Mic className="h-4 w-4 text-cyan-300" />
+                    )}
+                    {session.isMuted ? "Muted" : "Open"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+                    Status
+                  </p>
+                  <p className="mt-2 wrap-break-word text-base font-semibold text-white sm:text-lg">
+                    {session.status}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.18em] text-white/40">
-                  Status
-                </p>
-                <p className="mt-2 break-words text-base font-semibold text-white sm:text-lg">
-                  {session.status}
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         </section>
 
         <section className="grid flex-1 gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-          <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,34,0.96),rgba(8,11,24,0.9))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:rounded-[30px] sm:p-6">
+          <div className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,34,0.96),rgba(8,11,24,0.9))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:rounded-[30px] sm:p-6">
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-[24px] border border-cyan-400/20 bg-[linear-gradient(180deg,rgba(34,211,238,0.12),rgba(255,255,255,0.03))] p-4 sm:rounded-[28px] sm:p-5">
+              <div className="rounded-3xl border border-cyan-400/20 bg-[linear-gradient(180deg,rgba(34,211,238,0.12),rgba(255,255,255,0.03))] p-4 sm:rounded-[28px] sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-[0.2em] text-cyan-200/80">
@@ -163,19 +231,21 @@ export default function LiveInterviewWindowPage() {
                       alt="AI interviewer avatar"
                       width={180}
                       height={180}
-                      className="relative h-32 w-32 rounded-full object-cover sm:h-40 sm:w-40 lg:h-[180px] lg:w-[180px]"
+                      loading="eager"
+                      fetchPriority="high"
+                      className="relative h-32 w-32 rounded-full object-cover sm:h-40 sm:w-40 lg:h-45 lg:w-45"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(202,197,254,0.1),rgba(255,255,255,0.03))] p-4 sm:rounded-[28px] sm:p-5">
+              <div className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(202,197,254,0.1),rgba(255,255,255,0.03))] p-4 sm:rounded-[28px] sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-[0.2em] text-white/45">
                       Candidate
                     </p>
-                    <h2 className="mt-2 break-words text-2xl font-black text-white sm:text-3xl">
+                    <h2 className="mt-2 wrap-break-word text-2xl font-black text-white sm:text-3xl">
                       {session.userName}
                     </h2>
                   </div>
@@ -192,14 +262,16 @@ export default function LiveInterviewWindowPage() {
                       alt="Candidate avatar"
                       width={180}
                       height={180}
-                      className="relative h-32 w-32 rounded-full object-cover sm:h-40 sm:w-40 lg:h-[180px] lg:w-[180px]"
+                      loading="eager"
+                      fetchPriority="high"
+                      className="relative h-32 w-32 rounded-full object-cover sm:h-40 sm:w-40 lg:h-45 lg:w-45"
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 rounded-[24px] border border-white/10 bg-[#081120] p-4 sm:rounded-[28px] sm:p-5">
+            <div className="mt-6 rounded-3xl border border-white/10 bg-[#081120] p-4 sm:rounded-[28px] sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-200">
@@ -228,7 +300,7 @@ export default function LiveInterviewWindowPage() {
             </div>
           </div>
 
-          <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,34,0.96),rgba(8,11,24,0.9))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:rounded-[30px] sm:p-6">
+          <div className="rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,34,0.96),rgba(8,11,24,0.9))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:rounded-[30px] sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.22em] text-cyan-200/80">
@@ -243,7 +315,7 @@ export default function LiveInterviewWindowPage() {
               </div>
             </div>
 
-            <div className="mt-6 h-[30rem] overflow-y-auto pr-1 sm:h-[38rem]">
+            <div className="mt-6 h-120 overflow-y-auto pr-1 sm:h-152">
               {latestMessages.length === 0 ? (
                 <div className="flex h-full items-center justify-center rounded-[28px] border border-dashed border-white/10 bg-[#081120] p-8 text-center">
                   <div>
@@ -265,7 +337,7 @@ export default function LiveInterviewWindowPage() {
                     <div
                       key={item.id}
                       className={cn(
-                        "rounded-[24px] border px-4 py-4",
+                        "rounded-3xl border px-4 py-4",
                         item.role === "assistant"
                           ? "border-cyan-400/15 bg-cyan-400/8"
                           : "border-white/10 bg-white/5"

@@ -18,7 +18,7 @@ const monaSans = Mona_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Voice Agent App",
+  title: "Prep Wise Agent Voice ",
   description: "Voice Agent App built with Next.js and React",
 };
 
