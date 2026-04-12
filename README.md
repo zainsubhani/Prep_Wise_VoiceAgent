@@ -1,318 +1,351 @@
-# 🚀 PrepWise — AI Voice Interview Platform
+# PrepWise / Interview Prep Platform
 
-> Real-time AI-powered interview simulation platform with voice interaction, automated evaluation, and structured feedback.
+AI-powered interview practice platform built with Next.js, Firebase, Vapi, and OpenRouter. Users can sign in, run live voice interview sessions, save transcripts, receive structured AI feedback, and review performance trends across completed interviews.
 
----
+## What It Does
 
-## 📌 Overview
+- Runs live voice-based mock interviews through Vapi.
+- Lets candidates configure role, interview type, difficulty, and duration.
+- Streams and stores the interview transcript from the live session.
+- Sends completed transcripts to an AI evaluator through OpenRouter.
+- Stores feedback reports in Firestore.
+- Shows private interview history, detailed feedback, and analytics dashboards.
+- Supports Firebase email/password auth plus Google, GitHub, and LinkedIn OIDC sign-in.
 
-PrepWise is a full-stack AI platform that simulates real-world technical and behavioral interviews through a **live voice-based AI interviewer**.
+## Tech Stack
 
-Unlike traditional interview prep tools, PrepWise provides a **dynamic, conversational, and realistic interview experience** by combining real-time voice interaction, LLM-based evaluation, and structured analytics.
-
----
-
-## 🎯 Key Features
-
-### 🎤 Live AI Voice Interviews
-- Real-time voice-based interview experience
-- Dynamic question generation based on:
-  - Role (Frontend, Backend, etc.)
-  - Interview type (Technical / Behavioral / Mixed)
-  - Difficulty level
-- AI-driven follow-up questions
-
----
-
-### 🧠 AI-Powered Feedback Engine
-- Full transcript analysis using LLMs (DeepSeek via OpenRouter)
-- Structured evaluation across:
-  - Communication
-  - Technical depth
-  - Problem solving
-  - Confidence
-  - Clarity
-- Generates:
-  - Strengths
-  - Areas for improvement
-  - Actionable next steps
-
----
-
-### 📊 Analytics & Insights
-- Interview history tracking
-- Performance trends over time
-- Skill-level breakdown (Recharts visualizations)
-
----
-
-### 🔐 Authentication System
-- Email/password authentication
-- OAuth providers:
-  - Google
-  - GitHub
-  - LinkedIn (OIDC)
-- Protected routes and session management
-
----
-
-### ⚙️ Real-Time Interview Controls
-- Configurable interview duration (15–120 minutes)
-- Live transcript streaming
-- Mute / End interview controls
-- Voice activity monitoring
-
----
-
-## 🏗️ System Architecture
-
-
-
----
-
-## 🔄 Workflow
-
-1. User selects:
-   - Role
-   - Interview type
-   - Difficulty
-   - Duration
-
-2. Voice interview session starts via Vapi
-
-3. Real-time transcript is streamed and displayed
-
-4. On interview completion:
-   - Transcript is sent to backend
-   - LLM analyzes responses
-
-5. Structured feedback is generated and stored
-
-6. User is redirected to feedback dashboard
-
----
-
-## 🧱 Tech Stack
-
-### Frontend
-- Next.js 16 (App Router)
-- React 19
+- Next.js 16.2.1 App Router
+- React 19.2.4
 - TypeScript
 - Tailwind CSS 4
-- Radix UI
-- Recharts
-
-### Backend
-- Next.js Route Handlers (Serverless)
-- Event-driven architecture
-
-### AI / Voice
-- Vapi (real-time voice AI)
-- DeepSeek (via OpenRouter)
-
-### Database & Auth
-- Firebase (Firestore + Admin SDK)
 - Firebase Authentication
+- Cloud Firestore with Firebase Admin SDK
+- Vapi Web SDK for live voice interviews
+- OpenRouter chat completions, defaulting to `deepseek/deepseek-chat`
+- Recharts for feedback and analytics visualizations
+- React Hook Form and Zod for auth form validation
+- Radix UI, shadcn-style UI components, Lucide icons, Sonner toasts
 
-### Forms & Validation
-- React Hook Form
-- Zod
+## App Routes
 
-### UI/UX Enhancements
-- Sonner (notifications)
-- Responsive design
-- Dark UI theme
+| Route | Purpose |
+| --- | --- |
+| `/` | Public landing page |
+| `/features` | Feature overview page |
+| `/howitworks` | Product flow page |
+| `/sign-in` | Firebase sign-in page |
+| `/sign-up` | Firebase account creation page |
+| `/dashboard` | Auth-aware interview dashboard and recent history |
+| `/takeinterview` | Main interview configuration and Vapi session controller |
+| `/takeinterview/live` | Pop-up live interview window synchronized through `BroadcastChannel` and local storage |
+| `/feedback` | Feedback dashboard with charts, trends, and recent reports |
+| `/feedback/[id]` | Detailed feedback report for a saved interview |
+| `/insights` | Insights page |
+| `/interviews` | Interviews page |
 
----
-## 🏗️ System Architecture
+## API Routes
 
-Frontend (Next.js App Router)
-↓
-Voice Layer (Vapi)
-↓
-Real-time Transcript Streaming
-↓
-Backend API (Next.js Route Handlers)
-↓
-LLM Analysis (OpenRouter / DeepSeek)
-↓
-Firestore (Firebase Admin SDK)
-↓
-Feedback & Analytics UI
+### `GET /api/interviews`
 
+Fetches the signed-in user's saved interview reports.
 
----
+- Requires an `Authorization: Bearer <firebase-id-token>` header.
+- Verifies the token with Firebase Admin Auth.
+- Queries the `interviews` Firestore collection by `userId`.
+- Sorts newest first.
+- Falls back to client-side sorting if the Firestore composite index for `userId + createdAt` is missing.
 
-## 🔄 Workflow
+Response shape:
 
-1. User selects:
-   - Role
-   - Interview type
-   - Difficulty
-   - Duration
+```json
+{
+  "interviews": []
+}
+```
 
-2. Voice interview session starts via Vapi
+### `POST /api/interview/analyze`
 
-3. Real-time transcript is streamed and displayed
+Analyzes a completed interview transcript and saves the report.
 
-4. On interview completion:
-   - Transcript is sent to backend
-   - LLM analyzes responses
+Required request fields:
 
-5. Structured feedback is generated and stored
+```json
+{
+  "userId": "firebase-user-id",
+  "role": "Frontend Developer",
+  "company": "",
+  "interviewType": "Technical",
+  "difficulty": "Medium",
+  "duration": 30,
+  "transcript": "Interviewer: ...\nCandidate: ..."
+}
+```
 
-6. User is redirected to feedback dashboard
+The route calls OpenRouter, validates that the model returns the expected JSON analysis, saves the report to Firestore, and returns the created interview id.
 
----
+Response shape:
 
-## 🧱 Tech Stack
+```json
+{
+  "success": true,
+  "interviewId": "firestore-doc-id",
+  "analysis": {
+    "overallScore": 85,
+    "communication": 80,
+    "technicalDepth": 88,
+    "confidence": 78,
+    "problemSolving": 90,
+    "clarity": 84,
+    "strengths": [],
+    "improvements": [],
+    "summary": "",
+    "nextSteps": []
+  }
+}
+```
 
-### Frontend
-- Next.js 16 (App Router)
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- Radix UI
-- Recharts
+## Data Model
 
-### Backend
-- Next.js Route Handlers (Serverless)
-- Event-driven architecture
+Interview reports are stored in the `interviews` Firestore collection.
 
-### AI / Voice
-- Vapi (real-time voice AI)
-- DeepSeek (via OpenRouter)
+```ts
+type InterviewRecord = {
+  id: string;
+  userId: string;
+  role: string;
+  company?: string;
+  interviewType: string;
+  difficulty: string;
+  duration: number;
+  transcript?: string;
+  overallScore: number;
+  communication: number;
+  technicalDepth: number;
+  confidence: number;
+  problemSolving: number;
+  clarity: number;
+  strengths: string[];
+  improvements: string[];
+  summary: string;
+  nextSteps: string[];
+  createdAt: string;
+};
+```
 
-### Database & Auth
-- Firebase (Firestore + Admin SDK)
-- Firebase Authentication
-
-### Forms & Validation
-- React Hook Form
-- Zod
-
-### UI/UX Enhancements
-- Sonner (notifications)
-- Responsive design
-- Dark UI theme
-
----
-
-## 📁 Project Structure
-/app
-/takeinterview # Live interview UI
-/feedback/[id] # Feedback page
-/dashboard # Analytics dashboard
-/api
-/interview/analyze # LLM analysis pipeline
-/stripe # Payment integration (WIP)
-
-/lib
-firebase-admin.ts # Firestore admin setup
-gemini.ts / ai.ts # LLM integration & parsing
-
-/types
-takeinterview.types.ts
-
-/components
-UI components
-
-/constants
-Role options & configs
-
-
-Here’s a slightly more polished version with grouped layers:
-
-```md
-
-## 🏗️ System Architecture
+## System Flow
 
 ```mermaid
-flowchart LR
-    subgraph Client["Client Layer"]
-        U[User]
-        FE[Next.js App Router UI]
-        AUTH[Firebase Auth]
-    end
+flowchart TD
+  User[User] --> UI[Next.js App Router UI]
+  UI --> Auth[Firebase Auth]
+  UI --> Vapi[Vapi Web SDK]
+  Vapi --> VoiceAgent[Vapi Assistant]
+  VoiceAgent --> Transcript[Transcript Events]
+  Transcript --> UI
+  UI --> Analyze[POST /api/interview/analyze]
+  Analyze --> OpenRouter[OpenRouter Chat Completions]
+  OpenRouter --> Model[DeepSeek or configured model]
+  Analyze --> Firestore[(Cloud Firestore)]
+  UI --> Interviews[GET /api/interviews]
+  Interviews --> Firestore
+  Firestore --> Feedback[Feedback and Dashboard UI]
+```
 
-    subgraph Voice["Real-Time Voice Layer"]
-        VAPI[Vapi Web SDK]
-        AGENT[Vapi Voice Agent]
-        TRANSCRIPT[Transcript Stream]
-    end
+1. The user signs in with Firebase Auth.
+2. The user configures a role, interview type, difficulty, and duration at `/takeinterview`.
+3. The page opens `/takeinterview/live` as a companion pop-up window.
+4. Vapi starts the configured assistant and receives transcript messages.
+5. The local controller keeps the main page and live pop-up synchronized.
+6. When the call ends, the transcript is sent to `/api/interview/analyze`.
+7. OpenRouter returns structured scoring and feedback.
+8. The server saves the feedback report in Firestore.
+9. The user is redirected to `/feedback/[id]`.
+10. Dashboards load saved interviews through `/api/interviews`.
 
-    subgraph Backend["Backend Layer"]
-        API[/Next.js Route Handlers/]
-        ADMIN[Firebase Admin SDK]
-    end
+## Getting Started
 
-    subgraph AI["AI Analysis Layer"]
-        OR[OpenRouter]
-        DS[DeepSeek]
-    end
+### Prerequisites
 
-    subgraph Data["Data Layer"]
-        FS[(Cloud Firestore)]
-    end
+- Node.js compatible with Next.js 16
+- npm
+- Firebase project with Authentication and Firestore enabled
+- Firebase service account credentials for server-side Admin SDK access
+- Vapi public key and assistant id
+- OpenRouter API key
 
-    subgraph Output["Product Surfaces"]
-        FB[Feedback Page]
-        INS[Insights Dashboard]
-    end
+### Install
 
-    U --> FE
-    FE --> AUTH
-    FE --> VAPI
-    VAPI --> AGENT
-    AGENT --> TRANSCRIPT
-    TRANSCRIPT --> FE
+```bash
+npm install
+```
 
-    FE --> API
-    API --> OR
-    OR --> DS
+### Environment Variables
 
-    API --> ADMIN
-    ADMIN --> FS
-
-    FS --> FB
-    FS --> INS
-    FE --> FB
-    FE --> INS
-
-
----
-
-```md
-### Flow Summary
-1. User starts a live voice interview from the Next.js frontend  
-2. Vapi handles the real-time interview conversation and transcript streaming  
-3. On interview completion, the transcript is sent to a backend analysis route  
-4. DeepSeek analyzes the interview and returns structured feedback  
-5. Results are stored in Firestore and rendered in the feedback and insights dashboards  
-
-## 🔑 Environment Variables
-
-Create a `.env.local` file:
+Create `.env.local` in the project root.
 
 ```env
+# Firebase client SDK
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+
+# Firebase Admin SDK
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_PRIVATE_KEY=
+
 # Vapi
 NEXT_PUBLIC_VAPI_PUBLIC_KEY=
 NEXT_PUBLIC_VAPI_ASSISTANT_ID=
 
-# Firebase
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-FIREBASE_CLIENT_EMAIL=
-FIREBASE_PRIVATE_KEY=
-
-# AI (OpenRouter / DeepSeek)
+# AI analysis through OpenRouter
 OPENROUTER_API_KEY=
 OPENROUTER_MODEL=deepseek/deepseek-chat
+```
 
-# App
-APP_URL=http://localhost:3000
+Notes:
 
-git clone https://github.com/zainsubhani/Prep_Wise_VoiceAgent
-cd Prep_Wise_VoiceAgent
+- `FIREBASE_PRIVATE_KEY` should preserve newlines. If your hosting provider stores it as a single line, use escaped newlines like `-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n`.
+- `NEXT_PUBLIC_VAPI_ASSISTANT_ID` should point to an assistant configured to accept the variables `role`, `interviewType`, `difficulty`, and `duration`.
+- `OPENROUTER_MODEL` is optional. The app falls back to `deepseek/deepseek-chat`.
 
-npm install
+### Run Locally
+
+```bash
 npm run dev
+```
+
+Open `http://localhost:3000`.
+
+### Production Build
+
+```bash
+npm run build
+npm run start
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## Firebase Setup
+
+1. Create or select a Firebase project.
+2. Enable Authentication.
+3. Enable Email/Password provider.
+4. Enable Google and GitHub providers if you want social auth.
+5. Configure a generic OIDC provider with the id `oidc.linkedin` if you want LinkedIn sign-in.
+6. Enable Cloud Firestore.
+7. Create a Firebase service account and copy `client_email` and `private_key` into `.env.local`.
+8. Add your local and deployed domains to Firebase Auth authorized domains.
+
+The interview history query uses:
+
+- Collection: `interviews`
+- Filter: `userId == <uid>`
+- Sort: `createdAt desc`
+
+Firestore may ask for a composite index for that query. The route has a fallback, but creating the suggested index is better for production.
+
+## Vapi Setup
+
+1. Create a Vapi assistant.
+2. Copy the public key into `NEXT_PUBLIC_VAPI_PUBLIC_KEY`.
+3. Copy the assistant id into `NEXT_PUBLIC_VAPI_ASSISTANT_ID`.
+4. Configure the assistant prompt to use these runtime variables:
+   - `{{role}}`
+   - `{{interviewType}}`
+   - `{{difficulty}}`
+   - `{{duration}}`
+5. Make sure the browser has microphone permission when starting an interview.
+6. Allow pop-ups for the local site so the live interview window can open.
+
+## OpenRouter Setup
+
+1. Create an OpenRouter API key.
+2. Add it to `OPENROUTER_API_KEY`.
+3. Optionally override `OPENROUTER_MODEL`.
+
+The evaluator prompt expects the model to return only valid JSON with these fields:
+
+- `overallScore`
+- `communication`
+- `technicalDepth`
+- `confidence`
+- `problemSolving`
+- `clarity`
+- `strengths`
+- `improvements`
+- `summary`
+- `nextSteps`
+
+Scores must be integers from 0 to 100.
+
+## Project Structure
+
+```text
+app/
+  (auth)/                  Sign-in and sign-up routes
+  (root)/                  Root layout and dashboard route group
+  api/
+    interview/analyze/     Transcript analysis and Firestore save route
+    interviews/            Authenticated interview history route
+  feedback/                Feedback dashboard and detail pages
+  takeinterview/           Interview setup and live session UI
+components/
+  auth/                    Auth context and route guards
+  dashboard/               Dashboard cards and sections
+  sections/                Marketing and product sections
+  ui/                      Shared UI primitives
+constants/                 Static content and option lists
+hooks/                     Client hooks such as useUserInterviews
+lib/                       Firebase, auth, AI, and analytics helpers
+public/                    Static images and SVG assets
+schema/                    Zod schemas
+types/                     Shared TypeScript types
+```
+
+## Important Files
+
+- `app/takeinterview/page.tsx`: Vapi session setup, transcript capture, timer, mute controls, analysis handoff, and live pop-up synchronization.
+- `app/takeinterview/live/page.tsx`: Live interview companion window.
+- `app/api/interview/analyze/route.ts`: Server route that analyzes transcripts and saves interview reports.
+- `app/api/interviews/route.ts`: Server route that fetches the authenticated user's interview reports.
+- `hooks/use-user-interviews.ts`: Client hook that gets the Firebase ID token and loads interview history.
+- `lib/gemini.ts`: OpenRouter integration and JSON analysis validation.
+- `lib/firebase.ts`: Firebase client SDK setup.
+- `lib/firebase-admin.ts`: Firebase Admin SDK setup.
+- `lib/server-auth.ts`: Firebase ID token verification helper.
+- `lib/interview-analytics.ts`: Dashboard aggregation helpers.
+- `components/AuthForm.tsx`: Email/password and social auth form.
+
+## Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start local development server |
+| `npm run build` | Create a production build |
+| `npm run start` | Start the production server |
+| `npm run lint` | Run ESLint |
+
+## Troubleshooting
+
+- `Missing NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `Missing FIREBASE_CLIENT_EMAIL`, or `Missing FIREBASE_PRIVATE_KEY`: check `.env.local` and restart the dev server.
+- `Missing Vapi assistant id`: set `NEXT_PUBLIC_VAPI_ASSISTANT_ID`.
+- `Vapi client is not initialized`: set `NEXT_PUBLIC_VAPI_PUBLIC_KEY` and restart the dev server.
+- `Microphone access is required`: allow microphone access in the browser.
+- `Please allow popups`: allow pop-ups for `localhost` or your deployed domain.
+- `Missing OPENROUTER_API_KEY`: add the key before using interview analysis.
+- Firestore index warning: create the composite index suggested by Firebase for `interviews` filtered by `userId` and ordered by `createdAt desc`.
+- LinkedIn sign-in fails: verify that Firebase has an OIDC provider configured with provider id `oidc.linkedin`.
+
+## Development Notes
+
+- This project uses Next.js 16. The local agent instructions say to read the relevant guide in `node_modules/next/dist/docs/` before changing Next.js-specific code.
+- Keep client-only Firebase usage in client components and server-side Admin SDK usage in route handlers or server utilities.
+- Do not expose server secrets with `NEXT_PUBLIC_`; only browser-safe config should use that prefix.
+- The live interview page depends on browser APIs including microphone access, `window.open`, `BroadcastChannel`, and `localStorage`.
