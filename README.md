@@ -2,6 +2,10 @@
 
 AI-powered interview practice platform built with Next.js, Firebase, Vapi, and OpenRouter. Users can sign in, run live voice interview sessions, save transcripts, receive structured AI feedback, and review performance trends across completed interviews.
 
+## Demo Video
+
+Watch the project walkthrough here: [PrepWise demo video](https://www.youtube.com/watch?v=070_-ody-NI).
+
 ## What It Does
 
 - Runs live voice-based mock interviews through Vapi.
